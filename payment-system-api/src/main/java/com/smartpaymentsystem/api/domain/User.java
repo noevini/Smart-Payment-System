@@ -32,7 +32,8 @@ public class User {
 
     @Column(nullable = false)
     @NotBlank
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(name = "created_at")
     private Instant createdAt;

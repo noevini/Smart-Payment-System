@@ -1,6 +1,7 @@
 package com.smartpaymentsystem.api.service;
 
 import com.smartpaymentsystem.api.domain.User;
+import com.smartpaymentsystem.api.domain.UserRole;
 import com.smartpaymentsystem.api.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public User createUser(String name, String email, String phone, String passwordHash, String role) {
+    public User createUser(String name, String email, String phone, String passwordHash, UserRole role) {
         String normalisedEmail = email.trim().toLowerCase();
 
         if (userRepository.existsByEmail(normalisedEmail)) {
