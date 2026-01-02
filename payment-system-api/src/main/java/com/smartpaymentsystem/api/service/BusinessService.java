@@ -17,9 +17,15 @@ public class BusinessService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow();
 
+        String normalisedName = name.trim();
+
+        if (businessRepository.existsByOwner_IdAndName(ownerId, normalisedName)) {
+            throw new IllegalArgumentException("Business name already exists for this owner");
+        }
+
         Business business = new Business();
         business.setOwner(owner);
-        business.setName(name);
+        business.setName(normalisedName);
 
         return businessRepository.save(business);
     }
