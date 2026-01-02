@@ -18,4 +18,21 @@ public class UserService {
     public Boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public User createUser(String name, String email, String phone, String passwordHash, String role) {
+        String normalisedEmail = email.trim().toLowerCase();
+
+        if (userRepository.existsByEmail(normalisedEmail)) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        User user = new User();
+        user.setName(name);
+        user.setEmail(normalisedEmail);
+        user.setPhone(phone);
+        user.setPasswordHash(passwordHash);
+        user.setRole(role);
+
+        return userRepository.save(user);
+    }
 }
