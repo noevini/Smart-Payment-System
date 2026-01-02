@@ -32,4 +32,16 @@ public class Business {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @PrePersist
+    private void onCreate() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    private void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }
