@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class CreateUserRequest {
 
-    @Size(max = 120)
+    @Size(min = 10, max = 120)
     @NotBlank
     private String name;
 

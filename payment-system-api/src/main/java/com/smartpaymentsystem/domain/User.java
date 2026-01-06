@@ -2,6 +2,7 @@ package com.smartpaymentsystem.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.Instant;
@@ -31,7 +32,7 @@ public class User {
     private String passwordHash;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
