@@ -7,11 +7,17 @@ import com.smartpaymentsystem.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Service
 public class BusinessService {
     private final BusinessRepository businessRepository;
     private final UserRepository userRepository;
+
+    public List<Business> listBusinessesByOwner(Long ownerId) {
+        return businessRepository.findByOwner_Id(ownerId);
+    }
 
     public Business createBusiness(Long ownerId, String name) {
         User owner = userRepository.findById(ownerId)
