@@ -1,4 +1,4 @@
-package com.smartpaymentsystem.api.domain;
+package com.smartpaymentsystem.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

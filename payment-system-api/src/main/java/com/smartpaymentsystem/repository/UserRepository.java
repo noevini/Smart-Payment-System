@@ -1,6 +1,6 @@
-package com.smartpaymentsystem.api.repository;
+package com.smartpaymentsystem.repository;
 
-import com.smartpaymentsystem.api.domain.User;
+import com.smartpaymentsystem.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

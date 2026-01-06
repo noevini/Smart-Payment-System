@@ -1,8 +1,8 @@
-package com.smartpaymentsystem.api.service;
+package com.smartpaymentsystem.service;
 
-import com.smartpaymentsystem.api.domain.User;
-import com.smartpaymentsystem.api.domain.UserRole;
-import com.smartpaymentsystem.api.repository.UserRepository;
+import com.smartpaymentsystem.domain.User;
+import com.smartpaymentsystem.domain.UserRole;
+import com.smartpaymentsystem.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

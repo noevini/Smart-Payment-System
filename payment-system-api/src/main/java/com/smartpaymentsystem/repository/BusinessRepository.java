@@ -1,6 +1,6 @@
-package com.smartpaymentsystem.api.repository;
+package com.smartpaymentsystem.repository;
 
-import com.smartpaymentsystem.api.domain.Business;
+import com.smartpaymentsystem.domain.Business;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BusinessRepository extends JpaRepository<Business, Long> {
