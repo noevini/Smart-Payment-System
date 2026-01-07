@@ -31,6 +31,12 @@ public class UserController {
         return UserMapper.toResponse(userService.getById(id));
     }
 
+    @GetMapping("/me")
+    public UserResponse getMe(@RequestHeader("X-User-Id") Long userId) {
+        return UserMapper.toResponse(userService.getById(userId));
+    }
+
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
