@@ -2,6 +2,7 @@ package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.BusinessResponse;
 import com.smartpaymentsystem.api.dto.CreateBusinessRequest;
+import com.smartpaymentsystem.api.mapper.BusinessMapper;
 import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.service.BusinessService;
 import jakarta.validation.Valid;
@@ -18,8 +19,12 @@ public class BusinessController {
     private final BusinessService businessService;
 
     @GetMapping
-    public List<Business> findByOwnerId(@RequestHeader("X-User-Id") Long ownerId) {
-        return businessService.listBusinessesByOwner(ownerId);
+    public List<BusinessResponse> findByOwnerId(@RequestHeader("X-User-Id") Long ownerId) {
+        List<Business> businesses = businessService.listBusinessesByOwner(ownerId);
+
+        return businesses.stream()
+                .map(BusinessMapper::toResponse)
+                .toList();
     }
 
     @PostMapping
