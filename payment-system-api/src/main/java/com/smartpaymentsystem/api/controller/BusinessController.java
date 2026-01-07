@@ -27,6 +27,13 @@ public class BusinessController {
                 .toList();
     }
 
+    @GetMapping("/{businessId}")
+    public BusinessResponse getById(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId) {
+        Business business = businessService.getBusinessByOwner(ownerId, businessId);
+
+        return BusinessMapper.toResponse(business);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BusinessResponse createBusiness(@Valid @RequestBody CreateBusinessRequest request) {

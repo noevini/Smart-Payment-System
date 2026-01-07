@@ -19,6 +19,11 @@ public class BusinessService {
         return businessRepository.findByOwner_Id(ownerId);
     }
 
+    public Business getBusinessByOwner(Long ownerId, Long businessId) {
+        return businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("Business not found for this owner"));
+    }
+
     public Business createBusiness(Long ownerId, String name) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow();

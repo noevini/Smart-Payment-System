@@ -4,7 +4,11 @@ import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -13,7 +17,11 @@ public class UserService {
 
     public User getById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 
     public Boolean existsByEmail(String email) {
