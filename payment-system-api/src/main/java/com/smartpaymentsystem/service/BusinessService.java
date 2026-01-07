@@ -1,5 +1,7 @@
 package com.smartpaymentsystem.service;
 
+import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
+import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.repository.BusinessRepository;
@@ -21,17 +23,17 @@ public class BusinessService {
 
     public Business getBusinessByOwner(Long ownerId, Long businessId) {
         return businessRepository.findByIdAndOwner_Id(businessId, ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("Business not found for this owner"));
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found for this owner"));
     }
 
     public Business createBusiness(Long ownerId, String name) {
         User owner = userRepository.findById(ownerId)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String normalisedName = name.trim();
 
         if (businessRepository.existsByOwner_IdAndName(ownerId, normalisedName)) {
-            throw new IllegalArgumentException("Business name already exists for this owner");
+            throw new ConflictException("Business name already exists for this owner");
         }
 
         Business business = new Business();
