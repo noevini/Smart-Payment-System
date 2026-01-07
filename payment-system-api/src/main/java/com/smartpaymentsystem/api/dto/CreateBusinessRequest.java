@@ -10,11 +10,7 @@ import lombok.Setter;
 @Setter
 public class CreateBusinessRequest {
 
-    @NotNull
-    private Long ownerId;
-
     @Size(min = 10, max = 140)
     @NotBlank
     private String name;
-
 }

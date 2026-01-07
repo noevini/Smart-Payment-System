@@ -36,16 +36,9 @@ public class BusinessController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BusinessResponse createBusiness(@Valid @RequestBody CreateBusinessRequest request) {
-        Business business = businessService.createBusiness(request.getOwnerId(), request.getName());
+    public BusinessResponse createBusiness(@RequestHeader("X-User-Id") Long ownerId, @Valid @RequestBody CreateBusinessRequest request) {
+        Business business = businessService.createBusiness(ownerId, request.getName());
 
-        BusinessResponse businessResponse = new BusinessResponse();
-        businessResponse.setId(business.getId());
-        businessResponse.setName(business.getName());
-        businessResponse.setOwnerId(business.getOwner().getId());
-        businessResponse.setCreatedAt(business.getCreatedAt());
-        businessResponse.setUpdatedAt(business.getUpdatedAt());
-
-        return businessResponse;
+        return BusinessMapper.toResponse(business);
     }
 }
