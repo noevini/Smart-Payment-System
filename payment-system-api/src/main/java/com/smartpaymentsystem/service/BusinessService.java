@@ -42,4 +42,30 @@ public class BusinessService {
 
         return businessRepository.save(business);
     }
+
+    public Business updateBusiness(Long ownerId, Long businessId, String name) {
+        Business business = businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+
+        String currentName = business.getName().trim();
+        String requestedName = name.trim();
+
+        if (currentName.equals(requestedName)) {
+            return business;
+        }
+
+        if (businessRepository.existsByOwner_IdAndName(ownerId, requestedName)) {
+            throw new ConflictException("Business name already exists for this owner");
+        }
+
+        business.setName(requestedName);
+        return businessRepository.save(business);
+    }
+
+    public void deleteBusiness(Long ownerId, Long businessId) {
+        Business business = businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+
+        businessRepository.delete(business);
+    }
 }
