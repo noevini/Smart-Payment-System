@@ -44,4 +44,35 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public User updateUser(Long userId, String name, String phone) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        boolean changed = false;
+
+        if (name != null) {
+            String requestedName = name.trim();
+            if (!user.getName().trim().equals(requestedName)) {
+                user.setName(requestedName);
+                changed = true;
+            }
+        }
+
+        if (phone != null) {
+            String requestedPhone = phone.trim();
+            if (!java.util.Objects.equals(user.getPhone(), requestedPhone)) {
+                user.setPhone(requestedPhone);
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            return user;
+        }
+
+        return userRepository.save(user);
+    }
+
+
 }
