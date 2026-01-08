@@ -1,6 +1,7 @@
 package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.CreateUserRequest;
+import com.smartpaymentsystem.api.dto.UpdateUserRequest;
 import com.smartpaymentsystem.api.dto.UserResponse;
 import com.smartpaymentsystem.api.mapper.UserMapper;
 import com.smartpaymentsystem.domain.User;
@@ -36,7 +37,6 @@ public class UserController {
         return UserMapper.toResponse(userService.getById(userId));
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -48,5 +48,18 @@ public class UserController {
                 request.getRole());
 
         return UserMapper.toResponse(userCreated);
+    }
+
+    @PutMapping("/me")
+    public UserResponse updateUser(@RequestHeader("X-User-Id") Long userId, @Valid @RequestBody UpdateUserRequest request) {
+        User user = userService.updateUser(userId, request.getName(), request.getPhone());
+
+        return UserMapper.toResponse(user);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@RequestHeader("X-User-Id") Long userId) {
+        userService.deleteUser(userId);
     }
 }
