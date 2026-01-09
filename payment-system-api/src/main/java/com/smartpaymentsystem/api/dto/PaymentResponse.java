@@ -2,7 +2,6 @@ package com.smartpaymentsystem.api.dto;
 
 import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.domain.PaymentStatus;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 
