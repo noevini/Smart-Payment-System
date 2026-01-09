@@ -1,5 +1,6 @@
 package com.smartpaymentsystem.service;
 
+import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
 import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.Payment;
@@ -52,6 +53,56 @@ public class PaymentService {
         payment.setCurrency(normalisedCurrency);
         payment.setDescription(description != null ? description.trim() : null);
         payment.setDueDate(dueDate);
+
+        return paymentRepository.save(payment);
+    }
+
+    public Payment updatePayment(Long ownerId, Long businessId, Long paymentId, BigDecimal amount, String currency, String description, Instant dueDate) {
+        businessService.getBusinessByOwner(ownerId, businessId);
+        Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new ConflictException("Cannot change the payment");
+        }
+
+        boolean changed = false;
+
+        if (amount != null && !amount.equals(payment.getAmount())) {
+            payment.setAmount(amount);
+            changed = true;
+        }
+
+        if (currency != null && !currency.isBlank()) {
+            String normalisedCurrency = currency.trim().toUpperCase();
+            if (!normalisedCurrency.equals(payment.getCurrency())) {
+                payment.setCurrency(normalisedCurrency);
+                changed = true;
+            }
+        }
+
+        if (description != null) {
+            String normalisedDescription = description.trim();
+
+            if (normalisedDescription.isBlank()) {
+                normalisedDescription = null;
+            }
+
+            assert normalisedDescription != null;
+            if (!normalisedDescription.equals(payment.getDescription())) {
+                payment.setDescription(normalisedDescription);
+                changed = true;
+            }
+        }
+
+        if (dueDate != null && !dueDate.equals(payment.getDueDate())) {
+            payment.setDueDate(dueDate);
+            changed = true;
+        }
+
+        if (!changed) {
+            return payment;
+        }
 
         return paymentRepository.save(payment);
     }
