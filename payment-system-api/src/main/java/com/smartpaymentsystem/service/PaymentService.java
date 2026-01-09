@@ -106,4 +106,16 @@ public class PaymentService {
 
         return paymentRepository.save(payment);
     }
+
+    public void deletePayment(Long ownerId, Long businessId, Long paymentId) {
+        businessService.getBusinessByOwner(ownerId, businessId);
+        Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new ConflictException("Cannot delete payment");
+        }
+
+        paymentRepository.delete(payment);
+    }
 }
