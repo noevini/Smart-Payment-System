@@ -4,7 +4,7 @@ create table payments (
     direction VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL,
     amount DECIMAL(19,2) NOT NULL,
-    currency CHAR(3) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
     description VARCHAR(255),
     due_date TIMESTAMP NOT NULL,
     paid_at TIMESTAMP,
