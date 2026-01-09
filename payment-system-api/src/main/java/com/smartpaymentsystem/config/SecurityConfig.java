@@ -22,7 +22,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/**", "/businesses/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/businesses/**", "/users/**").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();
