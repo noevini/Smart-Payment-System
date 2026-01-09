@@ -1,10 +1,13 @@
 package com.smartpaymentsystem.api.controller;
 
+import com.smartpaymentsystem.api.dto.CreatePaymentRequest;
 import com.smartpaymentsystem.api.dto.PaymentResponse;
 import com.smartpaymentsystem.api.mapper.PaymentMapper;
 import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.service.PaymentService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,5 +32,19 @@ public class PaymentController {
         Payment payment = paymentService.getPayment(ownerId, businessId, paymentId);
 
         return PaymentMapper.toResponse(payment);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PaymentResponse createPayment(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @Valid @RequestBody CreatePaymentRequest request) {
+       Payment payment = paymentService.createPayment(ownerId,
+               businessId,
+               request.getDirection(),
+               request.getAmount(),
+               request.getCurrency(),
+               request.getDescription(),
+               request.getDueDate());
+
+       return PaymentMapper.toResponse(payment);
     }
 }
