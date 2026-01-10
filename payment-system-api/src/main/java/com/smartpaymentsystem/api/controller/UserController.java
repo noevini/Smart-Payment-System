@@ -1,8 +1,8 @@
 package com.smartpaymentsystem.api.controller;
 
-import com.smartpaymentsystem.api.dto.CreateUserRequest;
-import com.smartpaymentsystem.api.dto.UpdateUserRequest;
-import com.smartpaymentsystem.api.dto.UserResponse;
+import com.smartpaymentsystem.api.dto.CreateUserRequestDTO;
+import com.smartpaymentsystem.api.dto.UpdateUserRequestDTO;
+import com.smartpaymentsystem.api.dto.UserResponseDTO;
 import com.smartpaymentsystem.api.mapper.UserMapper;
 import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.service.UserService;
@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserResponse> getUsers() {
+    public List<UserResponseDTO> getUsers() {
         return userService.getAll()
                 .stream()
                 .map(UserMapper::toResponse)
@@ -28,18 +28,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponse getUserById(@PathVariable Long id) {
+    public UserResponseDTO getUserById(@PathVariable Long id) {
         return UserMapper.toResponse(userService.getById(id));
     }
 
     @GetMapping("/me")
-    public UserResponse getMe(@RequestHeader("X-User-Id") Long userId) {
+    public UserResponseDTO getMe(@RequestHeader("X-User-Id") Long userId) {
         return UserMapper.toResponse(userService.getById(userId));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
+    public UserResponseDTO createUser(@Valid @RequestBody CreateUserRequestDTO request) {
         User userCreated = userService.createUser(
                 request.getName(),
                 request.getEmail(),
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public UserResponse updateUser(@RequestHeader("X-User-Id") Long userId, @Valid @RequestBody UpdateUserRequest request) {
+    public UserResponseDTO updateUser(@RequestHeader("X-User-Id") Long userId, @Valid @RequestBody UpdateUserRequestDTO request) {
         User user = userService.updateUser(userId, request.getName(), request.getPhone());
 
         return UserMapper.toResponse(user);

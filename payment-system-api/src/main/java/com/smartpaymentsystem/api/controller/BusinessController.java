@@ -1,8 +1,8 @@
 package com.smartpaymentsystem.api.controller;
 
-import com.smartpaymentsystem.api.dto.BusinessResponse;
-import com.smartpaymentsystem.api.dto.CreateBusinessRequest;
-import com.smartpaymentsystem.api.dto.UpdateBusinessRequest;
+import com.smartpaymentsystem.api.dto.BusinessResponseDTO;
+import com.smartpaymentsystem.api.dto.CreateBusinessRequestDTO;
+import com.smartpaymentsystem.api.dto.UpdateBusinessRequestDTO;
 import com.smartpaymentsystem.api.mapper.BusinessMapper;
 import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.service.BusinessService;
@@ -20,7 +20,7 @@ public class BusinessController {
     private final BusinessService businessService;
 
     @GetMapping
-    public List<BusinessResponse> findByOwnerId(@RequestHeader("X-User-Id") Long ownerId) {
+    public List<BusinessResponseDTO> findByOwnerId(@RequestHeader("X-User-Id") Long ownerId) {
         List<Business> businesses = businessService.listBusinessesByOwner(ownerId);
 
         return businesses.stream()
@@ -29,7 +29,7 @@ public class BusinessController {
     }
 
     @GetMapping("/{businessId}")
-    public BusinessResponse getById(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId) {
+    public BusinessResponseDTO getById(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId) {
         Business business = businessService.getBusinessByOwner(ownerId, businessId);
 
         return BusinessMapper.toResponse(business);
@@ -37,14 +37,14 @@ public class BusinessController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BusinessResponse createBusiness(@RequestHeader("X-User-Id") Long ownerId, @Valid @RequestBody CreateBusinessRequest request) {
+    public BusinessResponseDTO createBusiness(@RequestHeader("X-User-Id") Long ownerId, @Valid @RequestBody CreateBusinessRequestDTO request) {
         Business business = businessService.createBusiness(ownerId, request.getName());
 
         return BusinessMapper.toResponse(business);
     }
 
     @PutMapping("/{businessId}")
-    public BusinessResponse updateBusiness(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @Valid @RequestBody UpdateBusinessRequest request) {
+    public BusinessResponseDTO updateBusiness(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @Valid @RequestBody UpdateBusinessRequestDTO request) {
         Business business = businessService.updateBusiness(ownerId, businessId, request.getName());
 
         return BusinessMapper.toResponse(business);

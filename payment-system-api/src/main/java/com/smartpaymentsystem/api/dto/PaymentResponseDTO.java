@@ -10,7 +10,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-public class PaymentResponse {
+public class PaymentResponseDTO {
 
     private Long id;
     private Long businessId;

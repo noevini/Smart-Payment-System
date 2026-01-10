@@ -1,12 +1,12 @@
 package com.smartpaymentsystem.api.mapper;
 
-import com.smartpaymentsystem.api.dto.UserResponse;
+import com.smartpaymentsystem.api.dto.UserResponseDTO;
 import com.smartpaymentsystem.domain.User;
 
 public class UserMapper {
 
-    public static UserResponse toResponse(User user) {
-        UserResponse response = new UserResponse();
+    public static UserResponseDTO toResponse(User user) {
+        UserResponseDTO response = new UserResponseDTO();
         response.setId(user.getId());
         response.setName(user.getName());
         response.setEmail(user.getEmail());

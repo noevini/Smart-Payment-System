@@ -1,12 +1,12 @@
 package com.smartpaymentsystem.api.mapper;
 
-import com.smartpaymentsystem.api.dto.PaymentResponse;
+import com.smartpaymentsystem.api.dto.PaymentResponseDTO;
 import com.smartpaymentsystem.domain.Payment;
 
 public class PaymentMapper {
 
-    public static PaymentResponse toResponse(Payment payment) {
-        PaymentResponse response = new PaymentResponse();
+    public static PaymentResponseDTO toResponse(Payment payment) {
+        PaymentResponseDTO response = new PaymentResponseDTO();
 
         response.setId(payment.getId());
         response.setBusinessId(payment.getBusiness().getId());

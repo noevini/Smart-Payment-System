@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-public class UserResponse {
+public class UserResponseDTO {
 
     private Long id;
     private String name;
