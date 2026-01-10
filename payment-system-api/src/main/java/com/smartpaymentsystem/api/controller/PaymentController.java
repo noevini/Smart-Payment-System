@@ -2,6 +2,7 @@ package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.CreatePaymentRequest;
 import com.smartpaymentsystem.api.dto.PaymentResponse;
+import com.smartpaymentsystem.api.dto.UpdatePaymentRequest;
 import com.smartpaymentsystem.api.mapper.PaymentMapper;
 import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.service.PaymentService;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -46,5 +49,18 @@ public class PaymentController {
                request.getDueDate());
 
        return PaymentMapper.toResponse(payment);
+    }
+
+    @PutMapping("/{paymentId}")
+    public PaymentResponse updatePayment(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @PathVariable Long paymentId, @Valid @RequestBody UpdatePaymentRequest request) {
+        Payment payment = paymentService.updatePayment(ownerId, businessId, paymentId, request.getAmount(), request.getCurrency(), request.getDescription(), request.getDueDate());
+
+        return PaymentMapper.toResponse(payment);
+    }
+
+    @DeleteMapping("/{paymentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePayment(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @PathVariable Long paymentId) {
+        paymentService.deletePayment(ownerId, businessId, paymentId);
     }
 }
