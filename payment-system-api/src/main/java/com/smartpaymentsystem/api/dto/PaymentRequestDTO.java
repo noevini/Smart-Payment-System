@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
-public class CreatePaymentRequestDTO {
+public class PaymentRequestDTO {
 
     @NotNull
     private PaymentDirection direction;

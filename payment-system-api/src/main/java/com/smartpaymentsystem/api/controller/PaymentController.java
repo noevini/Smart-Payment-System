@@ -1,6 +1,6 @@
 package com.smartpaymentsystem.api.controller;
 
-import com.smartpaymentsystem.api.dto.CreatePaymentRequestDTO;
+import com.smartpaymentsystem.api.dto.PaymentRequestDTO;
 import com.smartpaymentsystem.api.dto.PaymentResponseDTO;
 import com.smartpaymentsystem.api.dto.UpdatePaymentRequestDTO;
 import com.smartpaymentsystem.api.mapper.PaymentMapper;
@@ -37,7 +37,7 @@ public class PaymentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponseDTO createPayment(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @Valid @RequestBody CreatePaymentRequestDTO request) {
+    public PaymentResponseDTO createPayment(@RequestHeader("X-User-Id") Long ownerId, @PathVariable Long businessId, @Valid @RequestBody PaymentRequestDTO request) {
        Payment payment = paymentService.createPayment(ownerId,
                businessId,
                request.getDirection(),

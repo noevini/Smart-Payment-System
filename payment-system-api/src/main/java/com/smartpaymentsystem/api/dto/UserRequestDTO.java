@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateUserRequestDTO {
+public class UserRequestDTO {
 
     @Size(max = 120)
     @NotBlank

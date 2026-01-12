@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateBusinessRequestDTO {
+public class BusinessRequestDTO {
 
     @Size(min = 10, max = 140)
     @NotBlank

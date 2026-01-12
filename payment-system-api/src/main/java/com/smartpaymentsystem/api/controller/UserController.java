@@ -1,6 +1,6 @@
 package com.smartpaymentsystem.api.controller;
 
-import com.smartpaymentsystem.api.dto.CreateUserRequestDTO;
+import com.smartpaymentsystem.api.dto.UserRequestDTO;
 import com.smartpaymentsystem.api.dto.UpdateUserRequestDTO;
 import com.smartpaymentsystem.api.dto.UserResponseDTO;
 import com.smartpaymentsystem.api.mapper.UserMapper;
@@ -39,7 +39,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO createUser(@Valid @RequestBody CreateUserRequestDTO request) {
+    public UserResponseDTO createUser(@Valid @RequestBody UserRequestDTO request) {
         User userCreated = userService.createUser(
                 request.getName(),
                 request.getEmail(),

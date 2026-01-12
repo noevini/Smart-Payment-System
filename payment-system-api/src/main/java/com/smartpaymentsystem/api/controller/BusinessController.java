@@ -1,7 +1,7 @@
 package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.BusinessResponseDTO;
-import com.smartpaymentsystem.api.dto.CreateBusinessRequestDTO;
+import com.smartpaymentsystem.api.dto.BusinessRequestDTO;
 import com.smartpaymentsystem.api.dto.UpdateBusinessRequestDTO;
 import com.smartpaymentsystem.api.mapper.BusinessMapper;
 import com.smartpaymentsystem.domain.Business;
@@ -37,7 +37,7 @@ public class BusinessController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BusinessResponseDTO createBusiness(@RequestHeader("X-User-Id") Long ownerId, @Valid @RequestBody CreateBusinessRequestDTO request) {
+    public BusinessResponseDTO createBusiness(@RequestHeader("X-User-Id") Long ownerId, @Valid @RequestBody BusinessRequestDTO request) {
         Business business = businessService.createBusiness(ownerId, request.getName());
 
         return BusinessMapper.toResponse(business);
