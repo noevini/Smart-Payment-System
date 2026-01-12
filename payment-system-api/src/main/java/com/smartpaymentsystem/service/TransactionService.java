@@ -22,8 +22,8 @@ public class TransactionService {
     private final TransactionMapper transactionMapper;
 
     @Transactional
-    public TransactionResponseDTO createTransaction(TransactionRequestDTO requestDTO) {
-        Business business = businessRepository.findById(requestDTO.getBusinessId())
+    public TransactionResponseDTO createTransaction(Long businessId, TransactionRequestDTO requestDTO) {
+        Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         Transaction entity = transactionMapper.toEntity(requestDTO, business);

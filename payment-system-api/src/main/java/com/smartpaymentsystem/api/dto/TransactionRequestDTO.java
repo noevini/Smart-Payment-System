@@ -15,9 +15,6 @@ import java.time.Instant;
 @Setter
 public class TransactionRequestDTO {
 
-    @NotNull(message = "Business id is required")
-    private Long businessId;
-
     @NotNull
     private TransactionType type;
 

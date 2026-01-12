@@ -29,15 +29,11 @@ public class TransactionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TransactionResponseDTO createTransaction(@PathVariable Long businessId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
-        requestDTO.setBusinessId(businessId);
-
-        return transactionService.createTransaction(requestDTO);
+        return transactionService.createTransaction(businessId, requestDTO);
     }
 
     @PutMapping("/{transactionId}")
     public TransactionResponseDTO updateTransaction(@PathVariable Long transactionId, @PathVariable Long businessId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
-        requestDTO.setBusinessId(businessId);
-
         return transactionService.updateTransaction(transactionId, businessId, requestDTO);
     }
 
