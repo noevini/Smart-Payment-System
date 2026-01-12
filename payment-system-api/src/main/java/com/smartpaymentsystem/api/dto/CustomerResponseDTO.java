@@ -1,6 +1,5 @@
 package com.smartpaymentsystem.api.dto;
 
-import com.smartpaymentsystem.domain.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
