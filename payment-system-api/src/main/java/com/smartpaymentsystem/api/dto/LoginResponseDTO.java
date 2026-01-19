@@ -6,10 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterResponseDTO {
-    private Long id;
-    private String name;
-    private String email;
+public class LoginResponseDTO {
+    private Long userId;
     private UserRole role;
     private Long businessId;
 }
