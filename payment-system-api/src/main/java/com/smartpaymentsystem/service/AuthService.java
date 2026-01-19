@@ -1,5 +1,7 @@
 package com.smartpaymentsystem.service;
 
+import com.smartpaymentsystem.api.dto.LoginRequestDTO;
+import com.smartpaymentsystem.api.dto.LoginResponseDTO;
 import com.smartpaymentsystem.api.dto.RegisterRequestDTO;
 import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
 import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
@@ -47,5 +49,25 @@ public class AuthService {
             user.setBusiness(null);
         }
         return userRepository.save(user);
+    }
+
+    public LoginResponseDTO login(LoginRequestDTO request) {
+
+        String email = request.getEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ConflictException("Invalid credentials"));
+
+        boolean passwordOk = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
+        if (!passwordOk) {
+            throw new ConflictException("Invalid credentials");
+        }
+
+        LoginResponseDTO response = new LoginResponseDTO();
+        response.setUserId(user.getId());
+        response.setRole(user.getRole());
+        response.setBusinessId(user.getBusiness() != null ? user.getBusiness().getId() : null);
+
+        return response;
     }
 }
