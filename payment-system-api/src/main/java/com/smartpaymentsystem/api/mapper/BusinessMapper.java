@@ -9,7 +9,6 @@ public class BusinessMapper {
         BusinessResponseDTO response = new BusinessResponseDTO();
         response.setId(business.getId());
         response.setName(business.getName());
-        response.setOwnerId(business.getOwner().getId());
         response.setCreatedAt(business.getCreatedAt());
         response.setUpdatedAt(business.getUpdatedAt());
 

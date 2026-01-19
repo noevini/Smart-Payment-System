@@ -11,7 +11,6 @@ public class BusinessResponseDTO {
 
     private Long id;
     private String name;
-    private Long ownerId;
     private Instant createdAt;
     private Instant updatedAt;
 
