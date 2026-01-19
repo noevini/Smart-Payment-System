@@ -4,6 +4,7 @@ import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
 import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.User;
+import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.BusinessRepository;
 import com.smartpaymentsystem.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -18,11 +19,11 @@ public class BusinessService {
     private final UserRepository userRepository;
 
     public List<Business> listBusinessesByOwner(Long ownerId) {
-        return businessRepository.findByOwner_Id(ownerId);
+        return businessRepository.findByOwners_Id(ownerId);
     }
 
     public Business getBusinessByOwner(Long ownerId, Long businessId) {
-        return businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+        return businessRepository.findByIdAndOwners_Id(businessId, ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found for this owner"));
     }
 
@@ -30,21 +31,25 @@ public class BusinessService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (owner.getRole() != UserRole.OWNER) {
+            throw new ConflictException("Only owners can create businesses");
+        }
+
         String normalisedName = name.trim();
 
-        if (businessRepository.existsByOwner_IdAndName(ownerId, normalisedName)) {
+        if (businessRepository.existsByOwners_IdAndName(ownerId, normalisedName)) {
             throw new ConflictException("Business name already exists for this owner");
         }
 
         Business business = new Business();
-        business.setOwner(owner);
+        business.getOwners().add(owner);
         business.setName(normalisedName);
 
         return businessRepository.save(business);
     }
 
     public Business updateBusiness(Long ownerId, Long businessId, String name) {
-        Business business = businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+        Business business = businessRepository.findByIdAndOwners_Id(businessId, ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         String currentName = business.getName().trim();
@@ -54,7 +59,7 @@ public class BusinessService {
             return business;
         }
 
-        if (businessRepository.existsByOwner_IdAndName(ownerId, requestedName)) {
+        if (businessRepository.existsByOwners_IdAndName(ownerId, requestedName)) {
             throw new ConflictException("Business name already exists for this owner");
         }
 
@@ -63,7 +68,7 @@ public class BusinessService {
     }
 
     public void deleteBusiness(Long ownerId, Long businessId) {
-        Business business = businessRepository.findByIdAndOwner_Id(businessId, ownerId)
+        Business business = businessRepository.findByIdAndOwners_Id(businessId, ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         businessRepository.delete(business);
