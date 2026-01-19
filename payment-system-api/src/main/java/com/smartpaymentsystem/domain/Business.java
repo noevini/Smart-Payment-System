@@ -2,13 +2,15 @@ package com.smartpaymentsystem.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.Instant;
 
-@Setter
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
+@Setter
 @Entity
 @Table(name = "businesses")
 public class Business {
@@ -18,18 +20,21 @@ public class Business {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 140)
     private String name;
 
-    @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    @ManyToMany
+    @JoinTable(
+            name = "business_owners",
+            joinColumns = @JoinColumn(name = "business_id"),
+            inverseJoinColumns = @JoinColumn(name = "owner_id")
+    )
+    private Set<User> owners = new HashSet<>();
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
