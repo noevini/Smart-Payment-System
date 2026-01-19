@@ -5,10 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.Instant;
 
-@Setter
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User {
@@ -17,29 +20,39 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     @NotBlank
+    @Column(nullable = false, length = 60)
     private String name;
 
-    @Column(nullable = false)
     @NotBlank
+    @Column(nullable = false, unique = true, length = 120)
     private String email;
 
+    @NotBlank
+    @Column(nullable = false, length = 30)
     private String phone;
 
     @NotBlank
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(nullable = false)
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
     private UserRole role;
 
-    @Column(name = "created_at")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "business_id")
+    private Business business;
+
+    @ManyToMany(mappedBy = "owners")
+    private Set<Business> ownedBusinesses = new HashSet<>();
+
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
@@ -53,5 +66,4 @@ public class User {
     private void onUpdate() {
         this.updatedAt = Instant.now();
     }
-
 }
