@@ -1,5 +1,7 @@
 package com.smartpaymentsystem.api.controller;
 
+import com.smartpaymentsystem.api.dto.LoginRequestDTO;
+import com.smartpaymentsystem.api.dto.LoginResponseDTO;
 import com.smartpaymentsystem.api.dto.RegisterRequestDTO;
 import com.smartpaymentsystem.api.dto.RegisterResponseDTO;
 import com.smartpaymentsystem.domain.User;
@@ -28,6 +30,11 @@ public class AuthController {
         response.setBusinessId(user.getBusiness() != null ? user.getBusiness().getId() : null);
 
         return response;
+    }
+
+    @PostMapping("/login")
+    public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
+        return authService.login(request);
     }
 
 }
