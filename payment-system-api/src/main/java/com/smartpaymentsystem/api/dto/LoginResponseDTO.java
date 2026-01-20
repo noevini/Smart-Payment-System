@@ -10,4 +10,5 @@ public class LoginResponseDTO {
     private Long userId;
     private UserRole role;
     private Long businessId;
+    private String token;
 }

@@ -10,6 +10,7 @@ import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.BusinessRepository;
 import com.smartpaymentsystem.repository.UserRepository;
+import com.smartpaymentsystem.security.JwtTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenService jwtTokenService;
 
     public User register(RegisterRequestDTO request) {
 
@@ -63,10 +65,13 @@ public class AuthService {
             throw new ConflictException("Invalid credentials");
         }
 
+        String token = jwtTokenService.generateToken(user);
+
         LoginResponseDTO response = new LoginResponseDTO();
         response.setUserId(user.getId());
         response.setRole(user.getRole());
         response.setBusinessId(user.getBusiness() != null ? user.getBusiness().getId() : null);
+        response.setToken(token);
 
         return response;
     }
