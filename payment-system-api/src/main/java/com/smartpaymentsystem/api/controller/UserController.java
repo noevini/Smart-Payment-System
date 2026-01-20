@@ -5,6 +5,7 @@ import com.smartpaymentsystem.api.dto.UpdateUserRequestDTO;
 import com.smartpaymentsystem.api.dto.UserResponseDTO;
 import com.smartpaymentsystem.api.mapper.UserMapper;
 import com.smartpaymentsystem.domain.User;
+import com.smartpaymentsystem.security.CurrentUserService;
 import com.smartpaymentsystem.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final CurrentUserService currentUserService;
 
     @GetMapping
     public List<UserResponseDTO> getUsers() {
@@ -33,7 +35,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponseDTO getMe(@RequestHeader("X-User-Id") Long userId) {
+    public UserResponseDTO getMe() {
+        Long userId = currentUserService.getCurrentUserId();
         return UserMapper.toResponse(userService.getById(userId));
     }
 
@@ -51,7 +54,8 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public UserResponseDTO updateUser(@RequestHeader("X-User-Id") Long userId, @Valid @RequestBody UpdateUserRequestDTO request) {
+    public UserResponseDTO updateUser(@Valid @RequestBody UpdateUserRequestDTO request) {
+        Long userId = currentUserService.getCurrentUserId();
         User user = userService.updateUser(userId, request.getName(), request.getPhone());
 
         return UserMapper.toResponse(user);
@@ -59,7 +63,8 @@ public class UserController {
 
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@RequestHeader("X-User-Id") Long userId) {
+    public void deleteUser() {
+        Long userId = currentUserService.getCurrentUserId();
         userService.deleteUser(userId);
     }
 }
