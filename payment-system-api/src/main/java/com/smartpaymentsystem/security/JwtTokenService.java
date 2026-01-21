@@ -29,7 +29,7 @@ public class JwtTokenService {
 
         Date issuedAt = Date.from(now);
         Date expiration = Date.from(
-                now.plus(jwtProperties.getExpiration(), ChronoUnit.MINUTES)
+                now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)
         );
 
         var builder = Jwts.builder()
