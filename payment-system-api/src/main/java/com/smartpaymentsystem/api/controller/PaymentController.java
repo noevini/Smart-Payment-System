@@ -5,7 +5,6 @@ import com.smartpaymentsystem.api.dto.PaymentResponseDTO;
 import com.smartpaymentsystem.api.dto.UpdatePaymentRequestDTO;
 import com.smartpaymentsystem.api.mapper.PaymentMapper;
 import com.smartpaymentsystem.domain.Payment;
-import com.smartpaymentsystem.security.CurrentUserService;
 import com.smartpaymentsystem.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -19,12 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
-    private final CurrentUserService currentUserService;
 
     @GetMapping
     public List<PaymentResponseDTO> getPayments(@PathVariable Long businessId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        List<Payment> payments = paymentService.listPayments(ownerId, businessId);
+        List<Payment> payments = paymentService.listPayments(businessId);
 
         return payments.stream()
                 .map(PaymentMapper::toResponse)
@@ -33,8 +30,7 @@ public class PaymentController {
 
     @GetMapping("/{paymentId}")
     public PaymentResponseDTO getPaymentById(@PathVariable Long businessId, @PathVariable Long paymentId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Payment payment = paymentService.getPayment(ownerId, businessId, paymentId);
+        Payment payment = paymentService.getPayment(businessId, paymentId);
 
         return PaymentMapper.toResponse(payment);
     }
@@ -42,9 +38,7 @@ public class PaymentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponseDTO createPayment(@PathVariable Long businessId, @Valid @RequestBody PaymentRequestDTO request) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Payment payment = paymentService.createPayment(ownerId,
-               businessId,
+        Payment payment = paymentService.createPayment(businessId,
                request.getDirection(),
                request.getAmount(),
                request.getCurrency(),
@@ -56,8 +50,7 @@ public class PaymentController {
 
     @PutMapping("/{paymentId}")
     public PaymentResponseDTO updatePayment(@PathVariable Long businessId, @PathVariable Long paymentId, @Valid @RequestBody UpdatePaymentRequestDTO request) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Payment payment = paymentService.updatePayment(ownerId, businessId, paymentId, request.getAmount(), request.getCurrency(), request.getDescription(), request.getDueDate());
+        Payment payment = paymentService.updatePayment(businessId, paymentId, request.getAmount(), request.getCurrency(), request.getDescription(), request.getDueDate());
 
         return PaymentMapper.toResponse(payment);
     }
@@ -65,7 +58,6 @@ public class PaymentController {
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePayment(@PathVariable Long businessId, @PathVariable Long paymentId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        paymentService.deletePayment(ownerId, businessId, paymentId);
+        paymentService.deletePayment(businessId, paymentId);
     }
 }
