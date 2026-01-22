@@ -7,6 +7,7 @@ import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
+import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +20,17 @@ import java.util.List;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BusinessService businessService;
-
+    private final BusinessAccessService businessAccessService;
 
     public List<Payment> listPayments(Long ownerId, Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         businessService.getBusinessByOwner(ownerId, businessId);
 
         return paymentRepository.findByBusiness_Id(businessId);
     }
 
     public Payment getPayment(Long ownerId, Long businessId, Long paymentId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         businessService.getBusinessByOwner(ownerId, businessId);
 
         return paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
@@ -35,6 +38,7 @@ public class PaymentService {
     }
 
     public Payment createPayment(Long ownerId, Long businessId, PaymentDirection direction, BigDecimal amount, String currency, String description, Instant dueDate) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         Business business = businessService.getBusinessByOwner(ownerId, businessId);
 
         String normalisedCurrency;
@@ -58,6 +62,8 @@ public class PaymentService {
     }
 
     public Payment updatePayment(Long ownerId, Long businessId, Long paymentId, BigDecimal amount, String currency, String description, Instant dueDate) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         businessService.getBusinessByOwner(ownerId, businessId);
         Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
@@ -108,6 +114,8 @@ public class PaymentService {
     }
 
     public void deletePayment(Long ownerId, Long businessId, Long paymentId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         businessService.getBusinessByOwner(ownerId, businessId);
         Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
