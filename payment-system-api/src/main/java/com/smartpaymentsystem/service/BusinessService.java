@@ -6,9 +6,12 @@ import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.BusinessRepository;
-import com.smartpaymentsystem.repository.UserRepository;
+import com.smartpaymentsystem.security.BusinessAccessService;
+import com.smartpaymentsystem.security.CurrentUserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -16,40 +19,61 @@ import java.util.List;
 @Service
 public class BusinessService {
     private final BusinessRepository businessRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
+    private final BusinessAccessService businessAccessService;
 
-    public List<Business> listBusinessesByOwner(Long ownerId) {
-        return businessRepository.findByOwners_Id(ownerId);
+    public List<Business> listMyBusinesses() {
+        User currentUser = currentUserService.getCurrentUser();
+
+        if (currentUser.getRole() == UserRole.OWNER) {
+            return businessRepository.findByOwners_Id(currentUser.getId());
+        }
+
+        if (currentUser.getRole() == UserRole.STAFF) {
+            if (currentUser.getBusiness() == null) {
+                return List.of();
+            }
+            return List.of(currentUser.getBusiness());
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have access to this business");
     }
 
-    public Business getBusinessByOwner(Long ownerId, Long businessId) {
-        return businessRepository.findByIdAndOwners_Id(businessId, ownerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Business not found for this owner"));
+    public Business getBusiness(Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
+        return businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
     }
 
-    public Business createBusiness(Long ownerId, String name) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public Business createBusiness(String name) {
+        User currentUser = currentUserService.getCurrentUser();
 
-        if (owner.getRole() != UserRole.OWNER) {
-            throw new ConflictException("Only owners can create businesses");
+        if (currentUser.getRole() != UserRole.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only owners can create");
         }
 
         String normalisedName = name.trim();
 
-        if (businessRepository.existsByOwners_IdAndName(ownerId, normalisedName)) {
+        if (businessRepository.existsByOwners_IdAndName(currentUser.getId(), normalisedName)) {
             throw new ConflictException("Business name already exists for this owner");
         }
 
         Business business = new Business();
-        business.getOwners().add(owner);
         business.setName(normalisedName);
+        business.getOwners().add(currentUser);
 
         return businessRepository.save(business);
     }
 
-    public Business updateBusiness(Long ownerId, Long businessId, String name) {
-        Business business = businessRepository.findByIdAndOwners_Id(businessId, ownerId)
+    public Business updateBusiness(Long businessId, String name) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
+        User currentUser = currentUserService.getCurrentUser();
+        if (currentUser.getRole() != UserRole.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only owners can update business");
+        }
+
+        Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         String currentName = business.getName().trim();
@@ -59,7 +83,7 @@ public class BusinessService {
             return business;
         }
 
-        if (businessRepository.existsByOwners_IdAndName(ownerId, requestedName)) {
+        if (businessRepository.existsByOwners_IdAndName(currentUser.getId(), requestedName)) {
             throw new ConflictException("Business name already exists for this owner");
         }
 
@@ -67,8 +91,15 @@ public class BusinessService {
         return businessRepository.save(business);
     }
 
-    public void deleteBusiness(Long ownerId, Long businessId) {
-        Business business = businessRepository.findByIdAndOwners_Id(businessId, ownerId)
+    public void deleteBusiness(Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
+        User currentUser = currentUserService.getCurrentUser();
+        if (currentUser.getRole() != UserRole.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only owners can update business");
+        }
+
+        Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         businessRepository.delete(business);
