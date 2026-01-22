@@ -6,6 +6,7 @@ import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.domain.PaymentStatus;
+import com.smartpaymentsystem.repository.BusinessRepository;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
@@ -19,30 +20,27 @@ import java.util.List;
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final BusinessService businessService;
     private final BusinessAccessService businessAccessService;
+    private final BusinessRepository businessRepository;
 
-    public List<Payment> listPayments(Long ownerId, Long businessId) {
+    public List<Payment> listPayments(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
-        businessService.getBusinessByOwner(ownerId, businessId);
-
         return paymentRepository.findByBusiness_Id(businessId);
     }
 
-    public Payment getPayment(Long ownerId, Long businessId, Long paymentId) {
+    public Payment getPayment(Long businessId, Long paymentId) {
         businessAccessService.assertCanAccessBusiness(businessId);
-        businessService.getBusinessByOwner(ownerId, businessId);
 
         return paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
     }
 
-    public Payment createPayment(Long ownerId, Long businessId, PaymentDirection direction, BigDecimal amount, String currency, String description, Instant dueDate) {
+    public Payment createPayment(Long businessId, PaymentDirection direction, BigDecimal amount, String currency, String description, Instant dueDate) {
         businessAccessService.assertCanAccessBusiness(businessId);
-        Business business = businessService.getBusinessByOwner(ownerId, businessId);
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
         String normalisedCurrency;
-
         if (currency == null || currency.trim().isEmpty()) {
             normalisedCurrency = "GBP";
         } else {
@@ -61,10 +59,9 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
-    public Payment updatePayment(Long ownerId, Long businessId, Long paymentId, BigDecimal amount, String currency, String description, Instant dueDate) {
+    public Payment updatePayment(Long businessId, Long paymentId, BigDecimal amount, String currency, String description, Instant dueDate) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        businessService.getBusinessByOwner(ownerId, businessId);
         Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
@@ -109,21 +106,18 @@ public class PaymentService {
         if (!changed) {
             return payment;
         }
-
         return paymentRepository.save(payment);
     }
 
-    public void deletePayment(Long ownerId, Long businessId, Long paymentId) {
+    public void deletePayment(Long businessId, Long paymentId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        businessService.getBusinessByOwner(ownerId, businessId);
         Payment payment = paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
             throw new ConflictException("Cannot delete payment");
         }
-
         paymentRepository.delete(payment);
     }
 }
