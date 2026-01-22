@@ -22,38 +22,28 @@ public class TransactionController {
 
     @GetMapping
     public Page<TransactionResponseDTO> getTransactions(@PathVariable Long businessId, Pageable pageable) {
-        validateOwnership(businessId);
         return transactionService.getByBusiness(businessId, pageable);
     }
 
     @GetMapping("/{transactionId}")
     public TransactionResponseDTO getTransactionById(@PathVariable Long businessId, @PathVariable Long transactionId ) {
-        validateOwnership(businessId);
         return transactionService.getById(businessId, transactionId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TransactionResponseDTO createTransaction(@PathVariable Long businessId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
-        validateOwnership(businessId);
         return transactionService.createTransaction(businessId, requestDTO);
     }
 
     @PutMapping("/{transactionId}")
     public TransactionResponseDTO updateTransaction(@PathVariable Long businessId, @PathVariable Long transactionId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
-        validateOwnership(businessId);
         return transactionService.updateTransaction(businessId, transactionId, requestDTO);
     }
 
     @DeleteMapping("/{transactionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTransaction(@PathVariable Long businessId, @PathVariable Long transactionId) {
-        validateOwnership(businessId);
         transactionService.deleteTransaction(businessId, transactionId);
-    }
-
-    private void validateOwnership(Long businessId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        businessService.getBusinessByOwner(ownerId, businessId);
     }
 }
