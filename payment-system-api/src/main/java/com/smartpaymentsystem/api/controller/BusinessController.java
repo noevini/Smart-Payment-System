@@ -19,22 +19,17 @@ import java.util.List;
 @AllArgsConstructor
 public class BusinessController {
     private final BusinessService businessService;
-    private final CurrentUserService currentUserService;
 
     @GetMapping
-    public List<BusinessResponseDTO> findByOwnerId() {
-        Long ownerId = currentUserService.getCurrentUserId();
-        List<Business> businesses = businessService.listBusinessesByOwner(ownerId);
-
-        return businesses.stream()
+    public List<BusinessResponseDTO> getMyBusinesses() {
+        return businessService.listMyBusinesses().stream()
                 .map(BusinessMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{businessId}")
     public BusinessResponseDTO getById(@PathVariable Long businessId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Business business = businessService.getBusinessByOwner(ownerId, businessId);
+        Business business = businessService.getBusiness(businessId);
 
         return BusinessMapper.toResponse(business);
     }
@@ -42,24 +37,20 @@ public class BusinessController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BusinessResponseDTO createBusiness(@Valid @RequestBody BusinessRequestDTO request) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Business business = businessService.createBusiness(ownerId, request.getName());
-
+        Business business = businessService.createBusiness(request.getName());
         return BusinessMapper.toResponse(business);
     }
 
     @PutMapping("/{businessId}")
-    public BusinessResponseDTO updateBusiness(@PathVariable Long businessId, @Valid @RequestBody UpdateBusinessRequestDTO request) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        Business business = businessService.updateBusiness(ownerId, businessId, request.getName());
-
+    public BusinessResponseDTO updateBusiness(@PathVariable Long businessId,
+                                              @Valid @RequestBody UpdateBusinessRequestDTO request) {
+        Business business = businessService.updateBusiness(businessId, request.getName());
         return BusinessMapper.toResponse(business);
     }
 
     @DeleteMapping("/{businessId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBusiness(@PathVariable Long businessId) {
-        Long ownerId = currentUserService.getCurrentUserId();
-        businessService.deleteBusiness(ownerId, businessId);
+        businessService.deleteBusiness(businessId);
     }
 }
