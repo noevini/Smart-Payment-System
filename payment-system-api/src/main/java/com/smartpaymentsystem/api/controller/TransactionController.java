@@ -2,8 +2,6 @@ package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.TransactionRequestDTO;
 import com.smartpaymentsystem.api.dto.TransactionResponseDTO;
-import com.smartpaymentsystem.security.CurrentUserService;
-import com.smartpaymentsystem.service.BusinessService;
 import com.smartpaymentsystem.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
-    private final BusinessService businessService;
-    private final CurrentUserService currentUserService;
 
     @GetMapping
     public Page<TransactionResponseDTO> getTransactions(@PathVariable Long businessId, Pageable pageable) {
