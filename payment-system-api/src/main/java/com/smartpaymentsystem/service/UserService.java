@@ -1,5 +1,6 @@
 package com.smartpaymentsystem.service;
 
+import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.UserRepository;
@@ -17,37 +18,15 @@ public class UserService {
 
     public User getById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-    }
-
-    public List<User> getAll() {
-        return userRepository.findAll();
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public Boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public User createUser(String name, String email, String phone, String passwordHash, UserRole role) {
-        String normalisedEmail = email.trim().toLowerCase();
-
-        if (userRepository.existsByEmail(normalisedEmail)) {
-            throw new IllegalArgumentException("Email already in use");
-        }
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(normalisedEmail);
-        user.setPhone(phone);
-        user.setPasswordHash(passwordHash);
-        user.setRole(role);
-
-        return userRepository.save(user);
-    }
-
     public User updateUser(Long userId, String name, String phone) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = getById(userId);
 
         boolean changed = false;
 
@@ -70,14 +49,11 @@ public class UserService {
         if (!changed) {
             return user;
         }
-
         return userRepository.save(user);
     }
 
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
+        User user = getById(userId);
         userRepository.delete(user);
     }
 }
