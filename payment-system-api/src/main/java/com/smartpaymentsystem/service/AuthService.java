@@ -10,6 +10,7 @@ import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.BusinessRepository;
 import com.smartpaymentsystem.repository.UserRepository;
+import com.smartpaymentsystem.security.CurrentUserService;
 import com.smartpaymentsystem.security.JwtTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,8 +23,13 @@ public class AuthService {
     private final BusinessRepository businessRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
+    private final CurrentUserService currentUserService;
 
     public User register(RegisterRequestDTO request) {
+
+        if (request.getRole() == null) {
+            throw new ConflictException("Role is required");
+        }
 
         String email = request.getEmail().trim().toLowerCase();
 
@@ -39,19 +45,29 @@ public class AuthService {
         user.setRole(request.getRole());
 
         if (request.getRole() == UserRole.STAFF) {
+
             if (request.getBusinessId() == null) {
                 throw new ConflictException("Staff user must belong to a business");
             }
 
-            Business business = businessRepository.findById(request.getBusinessId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
+            User currentUser = currentUserService.getCurrentUser();
+
+            if (currentUser.getRole() != UserRole.OWNER) {
+                throw new ConflictException("Only owners can create staff users");
+            }
+
+            Business business = businessRepository
+                    .findByIdAndOwners_Id(request.getBusinessId(), currentUser.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Business not found for this owner"));
 
             user.setBusiness(business);
+
         } else {
             user.setBusiness(null);
         }
         return userRepository.save(user);
     }
+
 
     public LoginResponseDTO login(LoginRequestDTO request) {
 
