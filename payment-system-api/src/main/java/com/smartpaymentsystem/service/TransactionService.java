@@ -8,6 +8,7 @@ import com.smartpaymentsystem.domain.Business;
 import com.smartpaymentsystem.domain.Transaction;
 import com.smartpaymentsystem.repository.BusinessRepository;
 import com.smartpaymentsystem.repository.TransactionRepository;
+import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,12 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final BusinessRepository businessRepository;
     private final TransactionMapper transactionMapper;
+    private final BusinessAccessService businessAccessService;
 
     @Transactional
     public TransactionResponseDTO createTransaction(Long businessId, TransactionRequestDTO requestDTO) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
@@ -34,6 +38,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Page<TransactionResponseDTO> getByBusiness(Long businessId, Pageable pageable) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         Page<Transaction> page = transactionRepository.findByBusinessId(businessId, pageable);
 
         return page.map(transactionMapper::toResponse);
@@ -41,6 +46,8 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public TransactionResponseDTO getById(Long transactionId, Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         Transaction transaction = transactionRepository.findByIdAndBusinessId(transactionId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
@@ -49,6 +56,8 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponseDTO updateTransaction(Long transactionId, Long businessId, TransactionRequestDTO requestDTO) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         Transaction transaction = transactionRepository.findByIdAndBusinessId(transactionId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
@@ -64,6 +73,8 @@ public class TransactionService {
 
     @Transactional
     public void deleteTransaction(Long transactionId, Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         Transaction transaction = transactionRepository.findByIdAndBusinessId(transactionId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
