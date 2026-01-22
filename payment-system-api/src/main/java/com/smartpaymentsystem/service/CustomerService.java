@@ -7,6 +7,7 @@ import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.api.mapper.CustomerMapper;
 import com.smartpaymentsystem.domain.Customer;
 import com.smartpaymentsystem.repository.CustomerRepository;
+import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final BusinessAccessService businessAccessService;
 
     @Transactional
     public CustomerResponseDTO createCustomer(Long businessId, CustomerRequestDTO requestDTO) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         String email = requestDTO.getEmail();
 
         if (email != null) {
@@ -48,6 +52,7 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public Page<CustomerResponseDTO> getCustomers(Long businessId, Pageable pageable) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         Page<Customer> page = customerRepository.findByBusinessId(businessId, pageable);
 
         return page.map(customerMapper::toResponse);
@@ -63,7 +68,8 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponseDTO updateCustomer(Long businessId, Long customerId, CustomerRequestDTO requestDTO) {
-       Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
+        businessAccessService.assertCanAccessBusiness(businessId);
+        Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         String email = requestDTO.getEmail();
@@ -99,6 +105,7 @@ public class CustomerService {
 
     @Transactional
     public void deleteCustomer(Long customerId, Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
         Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
