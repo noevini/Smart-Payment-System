@@ -1,9 +1,11 @@
 package com.smartpaymentsystem.security;
 
 import com.smartpaymentsystem.domain.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CurrentUserService {
@@ -13,7 +15,7 @@ public class CurrentUserService {
 
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof User)) {
-            throw new IllegalStateException("Authenticated principal is not a User");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authentication principal");
         }
         return (User) principal;
     }
@@ -28,8 +30,7 @@ public class CurrentUserService {
                 .getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("No authenticated user found");
-        }
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthenticated");        }
         return authentication;
     }
 }
