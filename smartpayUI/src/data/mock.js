@@ -36,3 +36,30 @@ export const payments = [
     method: "Card",
   },
 ];
+
+export const customers = [
+  {
+    id: "CUS-001",
+    name: "John Smith",
+    email: "john.smith@email.com",
+    phone: "+44 7700 900123",
+  },
+  {
+    id: "CUS-002",
+    name: "Emma Johnson",
+    email: "emma.johnson@email.com",
+    phone: "+44 7700 900456",
+  },
+  {
+    id: "CUS-003",
+    name: "Michael Brown",
+    email: "michael.brown@email.com",
+    phone: "+44 7700 900789",
+  },
+  {
+    id: "CUS-004",
+    name: "Sarah Wilson",
+    email: "sarah.wilson@email.com",
+    phone: "+44 7700 900321",
+  },
+];
