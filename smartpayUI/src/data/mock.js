@@ -1,0 +1,38 @@
+export const payments = [
+  {
+    id: "PAY-001",
+    customer: "Anderson Silva",
+    amount: 1200,
+    currency: "GBP",
+    status: "PENDING", // PAID | PENDING | OVERDUE
+    dueDate: "2026-02-05",
+    method: "Bank Transfer",
+  },
+  {
+    id: "PAY-002",
+    customer: "Maria Costa",
+    amount: 300,
+    currency: "GBP",
+    status: "PAID",
+    dueDate: "2026-01-10",
+    method: "Card",
+  },
+  {
+    id: "PAY-003",
+    customer: "Lucas Pereira",
+    amount: 750,
+    currency: "GBP",
+    status: "OVERDUE",
+    dueDate: "2026-01-15",
+    method: "Cash",
+  },
+  {
+    id: "PAY-004",
+    customer: "Beatriz Almeida",
+    amount: 499.99,
+    currency: "GBP",
+    status: "PENDING",
+    dueDate: "2026-02-02",
+    method: "Card",
+  },
+];
