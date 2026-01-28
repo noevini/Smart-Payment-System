@@ -1,16 +1,16 @@
 export const payments = [
   {
     id: "PAY-001",
-    customer: "Anderson Silva",
+    customer: "John Smith",
     amount: 1200,
     currency: "GBP",
-    status: "PENDING", // PAID | PENDING | OVERDUE
+    status: "PENDING",
     dueDate: "2026-02-05",
     method: "Bank Transfer",
   },
   {
     id: "PAY-002",
-    customer: "Maria Costa",
+    customer: "Emma Johnson",
     amount: 300,
     currency: "GBP",
     status: "PAID",
@@ -19,7 +19,7 @@ export const payments = [
   },
   {
     id: "PAY-003",
-    customer: "Lucas Pereira",
+    customer: "Michael Brown",
     amount: 750,
     currency: "GBP",
     status: "OVERDUE",
@@ -28,7 +28,7 @@ export const payments = [
   },
   {
     id: "PAY-004",
-    customer: "Beatriz Almeida",
+    customer: "Sarah Wilson",
     amount: 499.99,
     currency: "GBP",
     status: "PENDING",
