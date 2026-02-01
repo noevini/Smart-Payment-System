@@ -21,11 +21,6 @@ public class TransactionController {
         return transactionService.getByBusiness(businessId, pageable);
     }
 
-    @GetMapping("/{transactionId}")
-    public TransactionResponseDTO getTransactionById(@PathVariable Long businessId, @PathVariable Long transactionId ) {
-        return transactionService.getById(businessId, transactionId);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TransactionResponseDTO createTransaction(@PathVariable Long businessId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
