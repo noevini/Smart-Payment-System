@@ -5,7 +5,6 @@ import com.smartpaymentsystem.api.dto.BusinessRequestDTO;
 import com.smartpaymentsystem.api.dto.UpdateBusinessRequestDTO;
 import com.smartpaymentsystem.api.mapper.BusinessMapper;
 import com.smartpaymentsystem.domain.Business;
-import com.smartpaymentsystem.security.CurrentUserService;
 import com.smartpaymentsystem.service.BusinessService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
