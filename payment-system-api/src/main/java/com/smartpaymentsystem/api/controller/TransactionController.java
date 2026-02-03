@@ -31,15 +31,4 @@ public class TransactionController {
     public TransactionResponseDTO createTransaction(@PathVariable Long businessId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
         return transactionService.createTransaction(businessId, requestDTO);
     }
-
-    @PutMapping("/{transactionId}")
-    public TransactionResponseDTO updateTransaction(@PathVariable Long businessId, @PathVariable Long transactionId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
-        return transactionService.updateTransaction(businessId, transactionId, requestDTO);
-    }
-
-    @DeleteMapping("/{transactionId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTransaction(@PathVariable Long businessId, @PathVariable Long transactionId) {
-        transactionService.deleteTransaction(businessId, transactionId);
-    }
 }

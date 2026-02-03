@@ -53,31 +53,4 @@ public class TransactionService {
 
         return  transactionMapper.toResponse(transaction);
     }
-
-    @Transactional
-    public TransactionResponseDTO updateTransaction(Long transactionId, Long businessId, TransactionRequestDTO requestDTO) {
-        businessAccessService.assertCanAccessBusiness(businessId);
-
-        Transaction transaction = transactionRepository.findByIdAndBusinessId(transactionId, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-
-        transaction.setType(requestDTO.getType());
-        transaction.setAmount(requestDTO.getAmount());
-        transaction.setCurrency(requestDTO.getCurrency().trim().toUpperCase());
-        transaction.setDescription(requestDTO.getDescription());
-        transaction.setOccurredAt(requestDTO.getOccurredAt());
-
-        Transaction saved = transactionRepository.save(transaction);
-        return transactionMapper.toResponse(saved);
-    }
-
-    @Transactional
-    public void deleteTransaction(Long transactionId, Long businessId) {
-        businessAccessService.assertCanAccessBusiness(businessId);
-
-        Transaction transaction = transactionRepository.findByIdAndBusinessId(transactionId, businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-
-        transactionRepository.delete(transaction);
-    }
 }
