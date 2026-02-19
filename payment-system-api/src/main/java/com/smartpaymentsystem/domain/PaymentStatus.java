@@ -1,5 +1,5 @@
 package com.smartpaymentsystem.domain;
 
 public enum PaymentStatus {
-    PENDING, PAID, CANCELED
+    PENDING, PAID, CANCELED, OVERDUE
 }
