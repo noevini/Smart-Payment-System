@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByBusiness_Id(Long businessId);
     Optional<Payment> findByIdAndBusiness_Id(Long paymentId, Long businessId);
-    List<Payment> findByStatusNotAndDueDateBefore(PaymentStatus status, Instant now);
+    List<Payment> findByStatusAndDueDate(PaymentStatus status, Instant now);
 }
