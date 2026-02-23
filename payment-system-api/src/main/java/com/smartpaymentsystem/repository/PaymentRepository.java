@@ -22,7 +22,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         where p.business.id = :businessId
         group by p.status
     """)
-    List<StatusCountRow> countByStatus(@Param("businessId") Long businessId);
+    List<StatusCountRepository> countByStatus(@Param("businessId") Long businessId);
 
     @Query("""
         select coalesce(sum(p.amount), 0)

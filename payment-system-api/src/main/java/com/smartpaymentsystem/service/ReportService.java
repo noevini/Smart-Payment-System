@@ -3,7 +3,7 @@ package com.smartpaymentsystem.service;
 import com.smartpaymentsystem.api.dto.DashboardResponseDTO;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
-import com.smartpaymentsystem.repository.StatusCountRow;
+import com.smartpaymentsystem.repository.StatusCountRepository;
 import com.smartpaymentsystem.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,10 +26,10 @@ public class ReportService {
                 .getBusiness()
                 .getId();
 
-        List<StatusCountRow> rows = paymentRepository.countByStatus(businessId);
+        List<StatusCountRepository> rows = paymentRepository.countByStatus(businessId);
 
         Map<PaymentStatus, Long> counts = new EnumMap<>(PaymentStatus.class);
-        for (StatusCountRow row : rows) {
+        for (StatusCountRepository row : rows) {
             counts.put(row.getStatus(), row.getCount());
         }
 
