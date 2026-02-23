@@ -1,6 +1,8 @@
 package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.DashboardResponseDTO;
+import com.smartpaymentsystem.api.dto.MonthlyRevenueDTO;
+import com.smartpaymentsystem.api.dto.MonthlyRevenueResponseDTO;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.repository.StatusCountRepository;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -59,5 +63,29 @@ public class ReportService {
                 paidAmount,
                 outstandingAmount
         );
+    }
+
+    public MonthlyRevenueResponseDTO getMonthlyRevenue(int months) {
+        if (months <= 0 || months > 24) {
+            months = 6;
+        }
+
+        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
+        Instant from = Instant.now().minus(months, ChronoUnit.MONTHS);
+
+        List<MonthlyRevenueDTO> points = paymentRepository
+                .getMonthlyRevenue(businessId, from)
+                .stream()
+                .map(r -> MonthlyRevenueDTO.builder()
+                        .monthStart(r.getMonthStart())
+                        .revenue(r.getRevenue())
+                        .count(r.getCount())
+                        .build()
+                )
+                .toList();
+
+        return MonthlyRevenueResponseDTO.builder()
+                .points(points)
+                .build();
     }
 }
