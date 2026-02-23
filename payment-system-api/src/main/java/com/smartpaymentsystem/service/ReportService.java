@@ -1,13 +1,13 @@
 package com.smartpaymentsystem.service;
 
-import com.smartpaymentsystem.api.dto.DashboardResponseDTO;
-import com.smartpaymentsystem.api.dto.MonthlyRevenueDTO;
-import com.smartpaymentsystem.api.dto.MonthlyRevenueResponseDTO;
+import com.smartpaymentsystem.api.dto.*;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.repository.StatusCountRepository;
 import com.smartpaymentsystem.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -86,6 +86,34 @@ public class ReportService {
 
         return MonthlyRevenueResponseDTO.builder()
                 .points(points)
+                .build();
+    }
+
+    public OverduePaymentResponseDTO getOverduePayments(int limit) {
+        if (limit <= 0 || limit > 100) {
+            limit = 20;
+        }
+
+        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
+        Instant now = Instant.now();
+
+        var pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "dueDate"));
+
+        List<OverduePaymentDTO> items = paymentRepository
+                .findByBusiness_IdAndStatusNotAndDueDateBefore(businessId, PaymentStatus.PAID, now, pageable)
+                .getContent()
+                .stream()
+                .map(p -> OverduePaymentDTO.builder()
+                        .paymentId(p.getId())
+                        .amount(p.getAmount())
+                        .dueDate(p.getDueDate())
+                        .status(p.getStatus())
+                        .build()
+                )
+                .toList();
+
+        return OverduePaymentResponseDTO.builder()
+                .items(items)
                 .build();
     }
 }
