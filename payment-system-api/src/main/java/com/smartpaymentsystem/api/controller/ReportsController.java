@@ -2,6 +2,7 @@ package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.DashboardResponseDTO;
 import com.smartpaymentsystem.api.dto.MonthlyRevenueResponseDTO;
+import com.smartpaymentsystem.api.dto.OverduePaymentResponseDTO;
 import com.smartpaymentsystem.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +24,10 @@ public class ReportsController {
     @GetMapping("/monthly-revenue")
     public MonthlyRevenueResponseDTO getMonthlyRevenue(@RequestParam(defaultValue = "6") int months) {
         return reportService.getMonthlyRevenue(months);
+    }
+
+    @GetMapping("/overdue")
+    public OverduePaymentResponseDTO getOverduePayments(@RequestParam(defaultValue = "20") int limit) {
+        return reportService.getOverduePayments(limit);
     }
 }
