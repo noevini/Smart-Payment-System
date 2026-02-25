@@ -2,9 +2,18 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../app/api/authApi";
 import { setToken } from "../app/auth/tokenStorage";
+import { useEffect } from "react";
+import { getToken } from "../app/auth/tokenStorage";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,8 +27,6 @@ export default function Login() {
 
     try {
       const data = await loginUser({ email, password });
-
-      // Swagger confirmou que o campo é "token"
       setToken(data.token);
 
       navigate("/dashboard");
