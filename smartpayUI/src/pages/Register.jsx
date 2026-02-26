@@ -36,7 +36,7 @@ export default function Register() {
     try {
       await registerUser(form);
       navigate("/login");
-    } catch (err) {
+    } catch {
       setError("Registration failed. Please check your data.");
     }
   }
