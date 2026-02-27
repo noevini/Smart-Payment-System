@@ -1,5 +1,6 @@
 package com.smartpaymentsystem.service;
 
+import com.smartpaymentsystem.api.dto.BusinessSummaryResponse;
 import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
 import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
 import com.smartpaymentsystem.domain.Business;
@@ -36,6 +37,16 @@ public class BusinessService {
             return List.of(currentUser.getBusiness());
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have access to this business");
+    }
+
+    public List<BusinessSummaryResponse> getMyBusinesses() {
+        Long userId = currentUserService.getCurrentUserId();
+
+        List<Business> businesses = businessRepository.findAllByOwnerId(userId);
+
+        return businesses.stream()
+                .map(b -> new BusinessSummaryResponse(b.getId(), b.getName()))
+                .toList();
     }
 
     public Business getBusiness(Long businessId) {
