@@ -13,3 +13,17 @@ export async function listCustomers() {
   const res = await api.get(base);
   return res.data;
 }
+
+export async function createCustomer(payload) {
+  const res = await api.post(getBasePath(), payload);
+  return res.data;
+}
+
+export async function updateCustomer(customerId, payload) {
+  const res = await api.patch(`${getBasePath()}/${customerId}`, payload);
+  return res.data;
+}
+
+export async function deleteCustomer(customerId) {
+  await api.delete(`${getBasePath()}/${customerId}`);
+}
