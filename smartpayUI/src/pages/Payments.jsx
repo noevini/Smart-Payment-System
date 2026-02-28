@@ -71,10 +71,11 @@ export default function Payments() {
             <thead className="text-left text-gray-500">
               <tr>
                 <th className="p-4">ID</th>
+                <th className="p-4">Direction</th>
                 <th className="p-4">Amount</th>
                 <th className="p-4">Status</th>
                 <th className="p-4">Due date</th>
-                <th className="p-4">Description</th>
+                <th className="p-4">Paid at</th>
               </tr>
             </thead>
 
@@ -82,22 +83,30 @@ export default function Payments() {
               {filtered.map((p) => (
                 <tr key={p.id} className="border-t">
                   <td className="p-4 font-mono">{p.id}</td>
+
+                  <td className="p-4">{p.direction}</td>
+
                   <td className="p-4">
                     {p.currency} {p.amount}
                   </td>
+
                   <td className="p-4">
                     <Badge status={p.status} />
                   </td>
+
                   <td className="p-4">
                     {p.dueDate ? String(p.dueDate).slice(0, 10) : "—"}
                   </td>
-                  <td className="p-4">{p.description || "—"}</td>
+
+                  <td className="p-4">
+                    {p.paidAt ? String(p.paidAt).slice(0, 10) : "—"}
+                  </td>
                 </tr>
               ))}
 
               {!loading && filtered.length === 0 ? (
                 <tr className="border-t">
-                  <td className="p-4 text-gray-500" colSpan={5}>
+                  <td className="p-4 text-gray-500" colSpan={6}>
                     No payments found.
                   </td>
                 </tr>
