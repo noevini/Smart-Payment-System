@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPayment } from "../../app/api/paymentApi";
-import { listCustomers } from "../../app/api/customerApi";
+import { listCustomers } from "../../app/api/customersApi";
 
 /**
  * Props:

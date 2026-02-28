@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listPayments } from "../app/api/paymentApi";
 import Badge from "../components/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
+import { updatePayment } from "../app/api/paymentApi";
 
 export default function Payments() {
   const [filter, setFilter] = useState("ALL");
@@ -43,7 +44,7 @@ export default function Payments() {
     }
 
     load();
-    const t = setTimeout(load, 250); // dá tempo do Topbar salvar o business id
+    const t = setTimeout(load, 250);
 
     return () => {
       cancelled = true;
@@ -112,6 +113,7 @@ export default function Payments() {
                 <th className="p-4">Status</th>
                 <th className="p-4">Due date</th>
                 <th className="p-4">Paid at</th>
+                <th className="p-4">Actions</th>
               </tr>
             </thead>
 
@@ -137,12 +139,32 @@ export default function Payments() {
                   <td className="p-4">
                     {p.paidAt ? String(p.paidAt).slice(0, 10) : "—"}
                   </td>
+                  <td className="p-4">
+                    {p.status !== "PAID" ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await updatePayment(p.id, { status: "PAID" });
+                            await loadPayments();
+                          } catch (e) {
+                            console.error(e);
+                            alert("Failed to mark as paid.");
+                          }
+                        }}
+                        className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+                      >
+                        Mark as paid
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-500">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
 
               {!loading && filtered.length === 0 ? (
                 <tr className="border-t">
-                  <td className="p-4 text-gray-500" colSpan={6}>
+                  <td className="p-4 text-gray-500" colSpan={7}>
                     No payments found.
                   </td>
                 </tr>

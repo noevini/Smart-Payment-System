@@ -25,7 +25,7 @@ export async function createPayment(payload) {
 }
 
 export async function updatePayment(paymentId, payload) {
-  const res = await api.put(`${getBasePath()}/${paymentId}`, payload);
+  const res = await api.patch(`${getBasePath()}/${paymentId}`, payload);
   return res.data;
 }
 
