@@ -1,12 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { listPayments } from "../app/api/paymentApi";
 import Badge from "../components/Badge";
+import CreatePaymentModal from "../components/payments/CreatePaymentModal";
 
 export default function Payments() {
   const [filter, setFilter] = useState("ALL");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [open, setOpen] = useState(false);
+
+  async function loadPayments() {
+    try {
+      setLoading(true);
+      setError("");
+      const data = await listPayments();
+      setRows(data);
+    } catch (e) {
+      console.error(e);
+      setError("Failed to load payments.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -41,9 +58,20 @@ export default function Payments() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Payments</h1>
-        <p className="text-gray-600">Manage payments (connected to backend).</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Payments</h1>
+          <p className="text-gray-600">
+            Manage payments (connected to backend).
+          </p>
+        </div>
+
+        <button
+          onClick={() => setOpen(true)}
+          className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
+        >
+          New payment
+        </button>
       </div>
 
       {/* Filters */}
@@ -123,6 +151,12 @@ export default function Payments() {
           </table>
         </div>
       </div>
+
+      <CreatePaymentModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onCreated={loadPayments}
+      />
     </div>
   );
 }
