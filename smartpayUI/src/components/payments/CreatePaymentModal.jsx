@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { createPayment } from "../../app/api/paymentApi";
+import { createPayment, updatePayment } from "../../app/api/paymentApi";
 import { listCustomers } from "../../app/api/customersApi";
 
-/**
- * Props:
- * - open: boolean
- * - onClose: () => void
- * - onCreated: () => Promise<void> | void   (chama refresh da tabela)
- */
-export default function CreatePaymentModal({ open, onClose, onCreated }) {
+export default function CreatePaymentModal({
+  open,
+  onClose,
+  onCreated,
+  payment,
+}) {
+  const isEdit = !!payment;
+
   const [customers, setCustomers] = useState([]);
   const [customersLoading, setCustomersLoading] = useState(false);
   const [customersError, setCustomersError] = useState("");
@@ -18,7 +19,7 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
     amount: "",
     dueDate: "",
     description: "",
-    // direction: "IN", // se precisar no backend
+    currency: "",
   });
 
   const [creating, setCreating] = useState(false);
@@ -41,12 +42,36 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
       }
     }
 
-    if (open) loadCustomers();
+    if (open && !isEdit) loadCustomers();
 
     return () => {
       cancelled = true;
     };
-  }, [open]);
+  }, [open, isEdit]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setCreateError("");
+
+    if (isEdit && payment) {
+      setForm({
+        customerId: "",
+        amount: payment.amount != null ? String(payment.amount) : "",
+        dueDate: payment.dueDate ? String(payment.dueDate).slice(0, 10) : "",
+        description: payment.description ?? "",
+        currency: payment.currency ?? "",
+      });
+    } else {
+      setForm({
+        customerId: "",
+        amount: "",
+        dueDate: "",
+        description: "",
+        currency: "",
+      });
+    }
+  }, [open, isEdit, payment]);
 
   function resetForm() {
     setForm({
@@ -54,7 +79,7 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
       amount: "",
       dueDate: "",
       description: "",
-      // direction: "IN",
+      currency: "",
     });
     setCreateError("");
   }
@@ -68,23 +93,31 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
     e.preventDefault();
     setCreateError("");
 
-    if (!form.customerId) return setCreateError("Select a customer.");
+    if (!isEdit && !form.customerId)
+      return setCreateError("Select a customer.");
+
     const amountNum = Number(form.amount);
     if (!Number.isFinite(amountNum) || amountNum <= 0)
       return setCreateError("Amount must be greater than 0.");
     if (!form.dueDate) return setCreateError("Due date is required.");
 
     const payload = {
-      customerId: Number(form.customerId),
       amount: amountNum,
+      currency: form.currency?.trim() || null,
       dueDate: form.dueDate,
       description: form.description?.trim() || null,
-      // direction: form.direction,
+      ...(isEdit ? {} : { customerId: Number(form.customerId) }),
     };
 
     try {
       setCreating(true);
-      await createPayment(payload);
+
+      if (isEdit) {
+        await updatePayment(payment.id, payload);
+      } else {
+        await createPayment(payload);
+      }
+
       handleClose();
       await onCreated?.();
     } catch (e2) {
@@ -92,7 +125,7 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
       setCreateError(
         e2?.response?.data?.message ||
           e2?.response?.data?.error ||
-          "Failed to create payment.",
+          (isEdit ? "Failed to update payment." : "Failed to create payment."),
       );
     } finally {
       setCreating(false);
@@ -107,7 +140,9 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
 
       <div className="relative w-full max-w-lg bg-white rounded border shadow">
         <div className="p-4 border-b flex items-center justify-between">
-          <div className="font-semibold">Create payment</div>
+          <div className="font-semibold">
+            {isEdit ? "Edit payment" : "Create payment"}
+          </div>
           <button
             onClick={handleClose}
             className="text-sm px-2 py-1 rounded border hover:bg-gray-50"
@@ -117,29 +152,35 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
         </div>
 
         <form onSubmit={onSubmit} className="p-4 space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm text-gray-700">Customer</label>
-            <select
-              value={form.customerId}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, customerId: e.target.value }))
-              }
-              className="w-full border rounded px-3 py-2 text-sm"
-              disabled={customersLoading}
-            >
-              <option value="">
-                {customersLoading ? "Loading..." : "Select a customer"}
-              </option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name ?? c.fullName ?? c.companyName ?? `Customer #${c.id}`}
+          {/* Customer only in CREATE mode */}
+          {!isEdit ? (
+            <div className="space-y-1">
+              <label className="text-sm text-gray-700">Customer</label>
+              <select
+                value={form.customerId}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, customerId: e.target.value }))
+                }
+                className="w-full border rounded px-3 py-2 text-sm"
+                disabled={customersLoading}
+              >
+                <option value="">
+                  {customersLoading ? "Loading..." : "Select a customer"}
                 </option>
-              ))}
-            </select>
-            {customersError ? (
-              <div className="text-xs text-red-600">{customersError}</div>
-            ) : null}
-          </div>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name ??
+                      c.fullName ??
+                      c.companyName ??
+                      `Customer #${c.id}`}
+                  </option>
+                ))}
+              </select>
+              {customersError ? (
+                <div className="text-xs text-red-600">{customersError}</div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
@@ -169,17 +210,32 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm text-gray-700">Description</label>
-            <input
-              type="text"
-              value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
-              className="w-full border rounded px-3 py-2 text-sm"
-              placeholder="Optional"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-sm text-gray-700">Currency</label>
+              <input
+                type="text"
+                value={form.currency}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, currency: e.target.value }))
+                }
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="e.g. GBP"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm text-gray-700">Description</label>
+              <input
+                type="text"
+                value={form.description}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, description: e.target.value }))
+                }
+                className="w-full border rounded px-3 py-2 text-sm"
+                placeholder="Optional"
+              />
+            </div>
           </div>
 
           {createError ? (
@@ -200,7 +256,13 @@ export default function CreatePaymentModal({ open, onClose, onCreated }) {
               className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
               disabled={creating}
             >
-              {creating ? "Creating..." : "Create"}
+              {creating
+                ? isEdit
+                  ? "Saving..."
+                  : "Creating..."
+                : isEdit
+                  ? "Save"
+                  : "Create"}
             </button>
           </div>
         </form>
