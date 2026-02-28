@@ -6,8 +6,10 @@ import {
 } from "../app/api/paymentApi";
 import Badge from "../components/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
+import { getSelectedBusinessId } from "../app/business/businessStorage";
 
 export default function Payments() {
+  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
   const [filter, setFilter] = useState("ALL");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,30 +32,28 @@ export default function Payments() {
   }
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        setLoading(true);
-        setError("");
-        const data = await listPayments();
-        if (!cancelled) setRows(data);
-      } catch (e) {
-        console.error(e);
-        if (!cancelled) setError("Failed to load payments.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    function syncBusiness() {
+      setBusinessId(getSelectedBusinessId());
     }
 
-    load();
-    const t = setTimeout(load, 250);
+    window.addEventListener("storage", syncBusiness);
+    window.addEventListener("focus", syncBusiness);
+
+    syncBusiness();
 
     return () => {
-      cancelled = true;
-      clearTimeout(t);
+      window.removeEventListener("storage", syncBusiness);
+      window.removeEventListener("focus", syncBusiness);
     };
   }, []);
+
+  useEffect(() => {
+    if (!businessId) {
+      setRows([]);
+      return;
+    }
+    loadPayments();
+  }, [businessId]);
 
   const filtered = useMemo(() => {
     if (filter === "ALL") return rows;
