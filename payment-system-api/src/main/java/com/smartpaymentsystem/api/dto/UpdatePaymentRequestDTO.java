@@ -1,5 +1,6 @@
 package com.smartpaymentsystem.api.dto;
 
+import com.smartpaymentsystem.domain.PaymentStatus;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +18,5 @@ public class UpdatePaymentRequestDTO {
     private String currency;
     private String description;
     private Instant dueDate;
-
+    private PaymentStatus status;
 }
