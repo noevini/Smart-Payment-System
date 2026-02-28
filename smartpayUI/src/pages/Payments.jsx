@@ -14,7 +14,7 @@ export default function Payments() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [editingPayment, setEditingPayment] = useState(null);
   const [open, setOpen] = useState(false);
 
   async function loadPayments() {
@@ -71,7 +71,14 @@ export default function Payments() {
         </div>
 
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            if (!businessId) {
+              alert("Select a business first.");
+              return;
+            }
+            setEditingPayment(null);
+            setOpen(true);
+          }}
           className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
         >
           New payment
@@ -177,6 +184,18 @@ export default function Payments() {
                       </>
                     )}
 
+                    {(p.status === "PENDING" || p.status === "OVERDUE") && (
+                      <button
+                        onClick={() => {
+                          setEditingPayment(p);
+                          setOpen(true);
+                        }}
+                        className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+                      >
+                        Edit
+                      </button>
+                    )}
+
                     <button
                       onClick={async () => {
                         if (
@@ -216,7 +235,11 @@ export default function Payments() {
 
       <CreatePaymentModal
         open={open}
-        onClose={() => setOpen(false)}
+        payment={editingPayment}
+        onClose={() => {
+          setOpen(false);
+          setEditingPayment(null);
+        }}
         onCreated={loadPayments}
       />
     </div>
