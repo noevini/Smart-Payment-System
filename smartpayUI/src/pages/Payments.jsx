@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { listPayments } from "../app/api/paymentApi";
+import {
+  listPayments,
+  updatePayment,
+  deletePayment,
+} from "../app/api/paymentApi";
 import Badge from "../components/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
-import { updatePayment } from "../app/api/paymentApi";
 
 export default function Payments() {
   const [filter, setFilter] = useState("ALL");
@@ -174,9 +177,27 @@ export default function Payments() {
                       </>
                     )}
 
-                    {(p.status === "PAID" || p.status === "CANCELED") && (
-                      <span className="text-xs text-gray-500">—</span>
-                    )}
+                    <button
+                      onClick={async () => {
+                        if (
+                          !window.confirm(
+                            "Are you sure you want to delete this payment?",
+                          )
+                        )
+                          return;
+
+                        try {
+                          await deletePayment(p.id);
+                          await loadPayments();
+                        } catch (e) {
+                          console.error(e);
+                          alert("Failed to delete payment.");
+                        }
+                      }}
+                      className="px-3 py-2 rounded border text-sm text-red-600 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
