@@ -9,21 +9,29 @@ export default function Payments() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     async function load() {
       try {
         setLoading(true);
         setError("");
         const data = await listPayments();
-        setRows(data);
+        if (!cancelled) setRows(data);
       } catch (e) {
         console.error(e);
-        setError("Failed to load payments.");
+        if (!cancelled) setError("Failed to load payments.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     load();
+    const t = setTimeout(load, 250); // dá tempo do Topbar salvar o business id
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, []);
 
   const filtered = useMemo(() => {

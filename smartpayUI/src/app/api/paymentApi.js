@@ -3,14 +3,14 @@ import { getSelectedBusinessId } from "../business/businessStorage";
 
 function getBasePath() {
   const businessId = getSelectedBusinessId();
-  if (!businessId) {
-    throw new Error("No business selected");
-  }
+  if (!businessId) return null;
   return `/businesses/${businessId}/payments`;
 }
 
 export async function listPayments() {
-  const res = await api.get(getBasePath());
+  const base = getBasePath();
+  if (!base) return []; // ainda não selecionou business
+  const res = await api.get(base);
   return res.data;
 }
 
