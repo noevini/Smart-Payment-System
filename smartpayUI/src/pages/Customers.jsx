@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { listCustomers, deleteCustomer } from "../app/api/customersApi";
 import { getSelectedBusinessId } from "../app/business/businessStorage";
+import CustomerModal from "../components/customers/CustomerModal";
 
 export default function Customers() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());
+
+  const [open, setOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,9 +83,10 @@ export default function Customers() {
               alert("Select a business first.");
               return;
             }
-            alert("Next step: open Customer modal (create).");
+            setEditingCustomer(null); // create mode
+            setOpen(true);
           }}
-          className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
+          className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
           disabled={!businessId}
         >
           New customer
@@ -124,11 +129,15 @@ export default function Customers() {
                   <td className="p-4">{c.phone ?? "—"}</td>
                   <td className="p-4 flex gap-2">
                     <button
-                      onClick={() => alert("Next: implement Edit modal")}
+                      onClick={() => {
+                        setEditingCustomer(c);
+                        setOpen(true);
+                      }}
                       className="px-3 py-1.5 rounded border text-xs hover:bg-gray-50"
                     >
                       Edit
                     </button>
+
                     <button
                       onClick={() => handleDelete(c.id)}
                       className="px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
@@ -150,6 +159,17 @@ export default function Customers() {
           </table>
         </div>
       </div>
+
+      {/* Modal */}
+      <CustomerModal
+        open={open}
+        customer={editingCustomer}
+        onClose={() => {
+          setOpen(false);
+          setEditingCustomer(null);
+        }}
+        onSaved={loadCustomers}
+      />
     </div>
   );
 }
