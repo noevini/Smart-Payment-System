@@ -139,23 +139,42 @@ export default function Payments() {
                   <td className="p-4">
                     {p.paidAt ? String(p.paidAt).slice(0, 10) : "—"}
                   </td>
-                  <td className="p-4">
-                    {p.status !== "PAID" ? (
-                      <button
-                        onClick={async () => {
-                          try {
-                            await updatePayment(p.id, { status: "PAID" });
-                            await loadPayments();
-                          } catch (e) {
-                            console.error(e);
-                            alert("Failed to mark as paid.");
-                          }
-                        }}
-                        className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
-                      >
-                        Mark as paid
-                      </button>
-                    ) : (
+                  <td className="p-4 space-x-2">
+                    {(p.status === "PENDING" || p.status === "OVERDUE") && (
+                      <>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updatePayment(p.id, { status: "PAID" });
+                              await loadPayments();
+                            } catch (e) {
+                              console.error(e);
+                              alert("Failed to mark as paid.");
+                            }
+                          }}
+                          className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+                        >
+                          Mark as paid
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updatePayment(p.id, { status: "CANCELED" });
+                              await loadPayments();
+                            } catch (e) {
+                              console.error(e);
+                              alert("Failed to cancel payment.");
+                            }
+                          }}
+                          className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+
+                    {(p.status === "PAID" || p.status === "CANCELED") && (
                       <span className="text-xs text-gray-500">—</span>
                     )}
                   </td>
