@@ -48,10 +48,13 @@ public class PaymentController {
        return PaymentMapper.toResponse(payment);
     }
 
-    @PutMapping("/{paymentId}")
-    public PaymentResponseDTO updatePayment(@PathVariable Long businessId, @PathVariable Long paymentId, @Valid @RequestBody UpdatePaymentRequestDTO request) {
-        Payment payment = paymentService.updatePayment(businessId, paymentId, request.getAmount(), request.getCurrency(), request.getDescription(), request.getDueDate());
-
+    @PatchMapping("/{paymentId}")
+    public PaymentResponseDTO patchPayment(
+            @PathVariable Long businessId,
+            @PathVariable Long paymentId,
+            @Valid @RequestBody UpdatePaymentRequestDTO request
+    ) {
+        Payment payment = paymentService.patchPayment(businessId, paymentId, request);
         return PaymentMapper.toResponse(payment);
     }
 
