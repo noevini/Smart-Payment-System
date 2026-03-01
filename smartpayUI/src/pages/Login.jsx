@@ -4,15 +4,48 @@ import { loginUser } from "../app/api/authApi";
 import { setToken } from "../app/auth/tokenStorage";
 import { useEffect } from "react";
 import { getToken } from "../app/auth/tokenStorage";
+import { listBusinesses } from "../app/api/businessApi";
+import {
+  getSelectedBusinessId,
+  setSelectedBusinessId,
+} from "../app/business/businessStorage";
 
 export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      navigate("/dashboard", { replace: true });
+    let cancelled = false;
+
+    async function go() {
+      const token = getToken();
+      if (!token) return;
+
+      try {
+        const businesses = await listBusinesses();
+        if (cancelled) return;
+
+        if (!Array.isArray(businesses) || businesses.length === 0) {
+          navigate("/business-setup", { replace: true });
+          return;
+        }
+
+        const current = getSelectedBusinessId();
+        if (!current && businesses[0]?.id != null) {
+          setSelectedBusinessId(businesses[0].id);
+        }
+
+        navigate("/dashboard", { replace: true });
+      } catch (e) {
+        console.error(e);
+        setError("Failed to load your businesses. Please login again.");
+      }
     }
+
+    go();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   const [email, setEmail] = useState("");
@@ -28,6 +61,18 @@ export default function Login() {
     try {
       const data = await loginUser({ email, password });
       setToken(data.token);
+
+      const businesses = await listBusinesses();
+
+      if (!Array.isArray(businesses) || businesses.length === 0) {
+        navigate("/business-setup");
+        return;
+      }
+
+      const current = getSelectedBusinessId();
+      if (!current && businesses[0]?.id != null) {
+        setSelectedBusinessId(businesses[0].id);
+      }
 
       navigate("/dashboard");
     } catch {
