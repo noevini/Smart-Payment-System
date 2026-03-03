@@ -1,88 +1,117 @@
-import Card from "../components/Card";
-import Badge from "../components/Badge";
-import { payments } from "../data/mock";
-
-function formatMoney(amount, currency) {
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount}`;
-  }
-}
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { listPayments } from "../app/api/paymentApi";
+import { getSelectedBusinessId } from "../app/business/businessStorage";
+import StatCard from "../components/dashboard/StatCard";
+import RecentPaymentsTable from "../components/dashboard/RecentPaymentsTable";
 
 export default function Dashboard() {
-  const totalReceived = payments
-    .filter((p) => p.status === "PAID")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const navigate = useNavigate();
 
-  const pending = payments.filter((p) => p.status === "PENDING").length;
-  const overdue = payments.filter((p) => p.status === "OVERDUE").length;
+  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const recent = [...payments].slice(0, 4);
+  async function load() {
+    try {
+      setLoading(true);
+      setError("");
+      const data = await listPayments();
+      setPayments(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+      setError("Failed to load dashboard data.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    function syncBusiness() {
+      setBusinessId(getSelectedBusinessId());
+    }
+
+    window.addEventListener("storage", syncBusiness);
+    window.addEventListener("focus", syncBusiness);
+    syncBusiness();
+
+    return () => {
+      window.removeEventListener("storage", syncBusiness);
+      window.removeEventListener("focus", syncBusiness);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!businessId) {
+      setPayments([]);
+      setLoading(false);
+      return;
+    }
+    load();
+  }, [businessId]);
+
+  const stats = useMemo(() => {
+    const total = payments.length;
+    const pending = payments.filter((p) => p.status === "PENDING").length;
+    const overdue = payments.filter((p) => p.status === "OVERDUE").length;
+    const paid = payments.filter((p) => p.status === "PAID").length;
+    return { total, pending, overdue, paid };
+  }, [payments]);
+
+  const recent = useMemo(() => {
+    const copy = [...payments];
+    copy.sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+    return copy.slice(0, 5);
+  }, [payments]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-gray-600">Overview (mock data for IPD demo).</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card
-          title="Total received"
-          value={formatMoney(totalReceived, "GBP")}
-          subtitle="Paid payments"
-        />
-        <Card
-          title="Pending payments"
-          value={pending}
-          subtitle="Awaiting payment"
-        />
-        <Card
-          title="Overdue payments"
-          value={overdue}
-          subtitle="Need follow-up"
-        />
-        <Card title="Customers" value={4} subtitle="Mock count" />
-      </div>
-
-      <div className="bg-white border rounded">
-        <div className="p-4 border-b">
-          <h2 className="font-semibold">Recent payments</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-gray-600">Overview for your selected business.</p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-gray-500">
-              <tr>
-                <th className="p-4">ID</th>
-                <th className="p-4">Customer</th>
-                <th className="p-4">Amount</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Due date</th>
-                <th className="p-4">Method</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td className="p-4 font-mono">{p.id}</td>
-                  <td className="p-4">{p.customer}</td>
-                  <td className="p-4">{formatMoney(p.amount, p.currency)}</td>
-                  <td className="p-4">
-                    <Badge status={p.status} />
-                  </td>
-                  <td className="p-4">{p.dueDate}</td>
-                  <td className="p-4">{p.method}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/payments")}
+            className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
+          >
+            New payment
+          </button>
+          <button
+            onClick={() => navigate("/customers")}
+            className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
+          >
+            New customer
+          </button>
         </div>
       </div>
+
+      {!businessId ? (
+        <div className="text-sm text-gray-600">
+          Select a business to view the dashboard.
+        </div>
+      ) : null}
+
+      {loading ? (
+        <div className="text-sm text-gray-600">Loading dashboard...</div>
+      ) : error ? (
+        <div className="text-sm text-red-600">{error}</div>
+      ) : null}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total payments" value={stats.total} />
+        <StatCard title="Pending" value={stats.pending} />
+        <StatCard title="Overdue" value={stats.overdue} />
+        <StatCard title="Paid" value={stats.paid} />
+      </div>
+
+      <RecentPaymentsTable
+        rows={recent}
+        onViewAll={() => navigate("/payments")}
+      />
     </div>
   );
 }
