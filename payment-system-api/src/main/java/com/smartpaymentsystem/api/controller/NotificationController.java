@@ -21,7 +21,7 @@ public class NotificationController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/{id}/read)")
+    @PatchMapping("/{id}/read")
     public void markAsRead(@PathVariable Long id) {
         notificationService.markAsRead(id);
     }
