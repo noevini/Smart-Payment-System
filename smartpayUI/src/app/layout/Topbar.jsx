@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { clearToken } from "../auth/tokenStorage";
 import { listMyBusinesses, createBusiness } from "../api/businessApi";
 import {
+  clearSelectedBusinessId,
   getSelectedBusinessId,
   setSelectedBusinessId,
-} from "../business/businessStorage";
+} from "../state/businessStorage";
 
 export default function Topbar() {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ export default function Topbar() {
 
     try {
       setLoading(true);
-      await createBusiness(name.trim());
+      await createBusiness({ name: name.trim() });
       await loadBusinesses();
     } catch (e) {
       console.error("Failed to create business:", e);
@@ -71,6 +72,7 @@ export default function Topbar() {
 
   function handleLogout() {
     clearToken();
+    clearSelectedBusinessId();
     navigate("/login", { replace: true });
   }
 
