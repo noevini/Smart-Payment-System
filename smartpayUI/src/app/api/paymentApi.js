@@ -1,5 +1,5 @@
 import api from "./apiClient";
-import { getSelectedBusinessId } from "../business/businessStorage";
+import { getSelectedBusinessId } from "../state/businessStorage";
 
 function getBasePath() {
   const businessId = getSelectedBusinessId();

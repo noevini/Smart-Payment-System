@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { listPayments } from "../app/api/paymentApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 import ReportCard from "../components/reports/ReportCard";
 import OverduePaymentsTable from "../components/reports/OverduePaymentsTable";

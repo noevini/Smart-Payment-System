@@ -4,9 +4,9 @@ import {
   updatePayment,
   deletePayment,
 } from "../app/api/paymentApi";
-import Badge from "../components/Badge";
+import Badge from "../components/ui/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function Payments() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());

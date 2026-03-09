@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { listCustomers, deleteCustomer } from "../app/api/customersApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 import CustomerModal from "../components/customers/CustomerModal";
 
 export default function Customers() {

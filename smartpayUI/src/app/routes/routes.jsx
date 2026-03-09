@@ -8,7 +8,6 @@ import Dashboard from "../../pages/Dashboard";
 import Payments from "../../pages/Payments";
 import Customers from "../../pages/Customers";
 import Notifications from "../../pages/Notifications";
-import Managers from "../pages/Managers";
 import Reports from "../../pages/Reports";
 
 export const routes = [
@@ -29,7 +28,6 @@ export const routes = [
       { path: "customers", element: <Customers /> },
 
       { path: "notifications", element: <Notifications /> },
-      { path: "managers", element: <Managers /> },
       { path: "reports", element: <Reports /> },
     ],
   },

@@ -1,13 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
+import Topbar from "./Topbar";
 
 export default function AppLayout() {
   const linkClass = "block px-4 py-2 rounded hover:bg-gray-100 text-sm";
-
   const activeClass = "bg-gray-200 font-medium";
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
       <aside className="w-56 bg-white border-r p-4 space-y-2">
         <div className="text-lg font-bold mb-6">SmartPay</div>
 
@@ -39,15 +38,6 @@ export default function AppLayout() {
         </NavLink>
 
         <NavLink
-          to="/managers"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          Managers
-        </NavLink>
-
-        <NavLink
           to="/reports"
           className={({ isActive }) =>
             `${linkClass} ${isActive ? activeClass : ""}`
@@ -66,10 +56,12 @@ export default function AppLayout() {
         </NavLink>
       </aside>
 
-      {/* Page content */}
-      <main className="flex-1 p-6">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col">
+        <Topbar />
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../app/api/authApi";
-import { setToken } from "../app/auth/tokenStorage";
-import { useEffect } from "react";
-import { getToken } from "../app/auth/tokenStorage";
-import { listBusinesses } from "../app/api/businessApi";
+import { listMyBusinesses } from "../app/api/businessApi";
+
+import { setToken, getToken } from "../app/auth/tokenStorage";
 import {
   getSelectedBusinessId,
   setSelectedBusinessId,
-} from "../app/business/businessStorage";
+} from "../app/state/businessStorage";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,7 +26,7 @@ export default function Login() {
       if (!token) return;
 
       try {
-        const businesses = await listBusinesses();
+        const businesses = await listMyBusinesses();
         if (cancelled) return;
 
         if (!Array.isArray(businesses) || businesses.length === 0) {
@@ -30,6 +35,7 @@ export default function Login() {
         }
 
         const current = getSelectedBusinessId();
+
         if (!current && businesses[0]?.id != null) {
           setSelectedBusinessId(businesses[0].id);
         }
@@ -48,21 +54,18 @@ export default function Login() {
     };
   }, [navigate]);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   async function handleSubmit(e) {
     e.preventDefault();
+
     setError("");
     setLoading(true);
 
     try {
       const data = await loginUser({ email, password });
+
       setToken(data.token);
 
-      const businesses = await listBusinesses();
+      const businesses = await listMyBusinesses();
 
       if (!Array.isArray(businesses) || businesses.length === 0) {
         navigate("/business-setup");
@@ -70,12 +73,14 @@ export default function Login() {
       }
 
       const current = getSelectedBusinessId();
+
       if (!current && businesses[0]?.id != null) {
         setSelectedBusinessId(businesses[0].id);
       }
 
       navigate("/dashboard");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Invalid email or password.");
     } finally {
       setLoading(false);

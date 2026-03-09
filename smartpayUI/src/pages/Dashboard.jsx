@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listPayments } from "../app/api/paymentApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 import StatCard from "../components/dashboard/StatCard";
 import RecentPaymentsTable from "../components/dashboard/RecentPaymentsTable";
 
@@ -71,21 +71,6 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-gray-600">Overview for your selected business.</p>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/payments")}
-            className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
-          >
-            New payment
-          </button>
-          <button
-            onClick={() => navigate("/customers")}
-            className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
-          >
-            New customer
-          </button>
         </div>
       </div>
 
