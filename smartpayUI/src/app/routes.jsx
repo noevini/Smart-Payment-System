@@ -7,6 +7,9 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Payments from "../pages/Payments";
 import Customers from "../pages/Customers";
+import Notifications from "../pages/Notifications";
+import Managers from "../pages/Managers";
+import Reports from "../pages/Reports";
 
 export const routes = [
   { path: "/login", element: <Login /> },
@@ -24,6 +27,10 @@ export const routes = [
       { path: "dashboard", element: <Dashboard /> },
       { path: "payments", element: <Payments /> },
       { path: "customers", element: <Customers /> },
+
+      { path: "notifications", element: <Notifications /> },
+      { path: "managers", element: <Managers /> },
+      { path: "reports", element: <Reports /> },
     ],
   },
 ];
