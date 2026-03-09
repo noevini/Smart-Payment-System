@@ -1,15 +1,15 @@
 import { Navigate } from "react-router-dom";
-import AppLayout from "./layout/AppLayout";
+import AppLayout from "../layout/AppLayout";
 import RequireAuth from "./RequireAuth";
 
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import Dashboard from "../pages/Dashboard";
-import Payments from "../pages/Payments";
-import Customers from "../pages/Customers";
-import Notifications from "../pages/Notifications";
+import Login from "../../pages/Login";
+import Register from "../../pages/Register";
+import Dashboard from "../../pages/Dashboard";
+import Payments from "../../pages/Payments";
+import Customers from "../../pages/Customers";
+import Notifications from "../../pages/Notifications";
 import Managers from "../pages/Managers";
-import Reports from "../pages/Reports";
+import Reports from "../../pages/Reports";
 
 export const routes = [
   { path: "/login", element: <Login /> },
