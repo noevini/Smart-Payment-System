@@ -14,19 +14,24 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
     private final CurrentUserService currentUserService;
 
     public Page<NotificationResponseDTO> listNotifications(Pageable pageable) {
-        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
-        return  notificationRepository.findByBusiness_id(businessId, pageable).map(notificationMapper::toResponseDTO);
+        Long businessId = currentUserService.getCurrentBusinessId();
+
+        return notificationRepository
+                .findByBusiness_Id(businessId, pageable)
+                .map(notificationMapper::toResponseDTO);
     }
 
     public void markAsRead(Long notificationId) {
-        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
+        Long businessId = currentUserService.getCurrentBusinessId();
 
-        Notification notification = notificationRepository.findByIdAndBusiness_Id(notificationId, businessId)
+        Notification notification = notificationRepository
+                .findByIdAndBusiness_Id(notificationId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
 
         if (!notification.isRead()) {
