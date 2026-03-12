@@ -15,7 +15,11 @@ api.interceptors.request.use((config) => {
   }
 
   const businessId = getSelectedBusinessId();
-  if (businessId) {
+  const isAuthRoute =
+    config.url?.includes("/auth/login") ||
+    config.url?.includes("/auth/register");
+
+  if (businessId && !isAuthRoute) {
     config.headers["X-Business-Id"] = String(businessId);
   }
 

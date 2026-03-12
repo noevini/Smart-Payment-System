@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createBusiness } from "../app/api/businessApi";
-import { setSelectedBusinessId } from "../app/business/businessStorage";
+import { setSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function BusinessSetup() {
   const [name, setName] = useState("");

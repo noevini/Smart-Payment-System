@@ -9,10 +9,20 @@ import Payments from "../../pages/Payments";
 import Customers from "../../pages/Customers";
 import Notifications from "../../pages/Notifications";
 import Reports from "../../pages/Reports";
+import BusinessSetup from "../../pages/BusinessSetup";
 
 export const routes = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
+
+  {
+    path: "/business-setup",
+    element: (
+      <RequireAuth>
+        <BusinessSetup />
+      </RequireAuth>
+    ),
+  },
 
   {
     path: "/",
@@ -26,7 +36,7 @@ export const routes = [
       { path: "dashboard", element: <Dashboard /> },
       { path: "payments", element: <Payments /> },
       { path: "customers", element: <Customers /> },
-
+      { path: "business-setup", element: <BusinessSetup /> },
       { path: "notifications", element: <Notifications /> },
       { path: "reports", element: <Reports /> },
     ],

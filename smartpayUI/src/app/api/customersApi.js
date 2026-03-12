@@ -11,7 +11,7 @@ export async function listCustomers() {
   const base = getBasePath();
   if (!base) return [];
   const res = await api.get(base);
-  return res.data;
+  return res.data?.content ?? res.data ?? [];
 }
 
 export async function createCustomer(payload) {

@@ -5,7 +5,7 @@ export async function listMyBusinesses() {
   return res.data;
 }
 
-export async function createBusiness(name) {
-  const res = await api.post("/businesses", { name });
+export async function createBusiness(payload) {
+  const res = await api.post("/businesses", payload);
   return res.data;
 }
