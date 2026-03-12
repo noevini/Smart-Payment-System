@@ -2,18 +2,18 @@ import { NavLink, Outlet } from "react-router-dom";
 import Topbar from "./Topbar";
 
 export default function AppLayout() {
-  const linkClass = "block px-4 py-2 rounded hover:bg-gray-100 text-sm";
-  const activeClass = "bg-gray-200 font-medium";
-
   return (
-    <div className="min-h-screen flex bg-gray-100">
-      <aside className="w-56 bg-white border-r p-4 space-y-2">
-        <div className="text-lg font-bold mb-6">SmartPay</div>
+    <div className="min-h-screen flex bg-slate-50">
+      <aside className="w-64 bg-slate-900 text-white p-4 space-y-2">
+        <div className="px-3 py-4 mb-4">
+          <h1 className="text-xl font-bold tracking-tight">SmartPay</h1>
+          <p className="text-xs text-slate-400 mt-1">Payment Tracking System</p>
+        </div>
 
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
           }
         >
           Dashboard
@@ -22,7 +22,7 @@ export default function AppLayout() {
         <NavLink
           to="/payments"
           className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
           }
         >
           Payments
@@ -31,7 +31,7 @@ export default function AppLayout() {
         <NavLink
           to="/customers"
           className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
           }
         >
           Customers
@@ -40,7 +40,7 @@ export default function AppLayout() {
         <NavLink
           to="/reports"
           className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
           }
         >
           Reports
@@ -49,7 +49,7 @@ export default function AppLayout() {
         <NavLink
           to="/notifications"
           className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
           }
         >
           Notifications

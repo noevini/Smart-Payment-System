@@ -52,6 +52,7 @@ export default function Topbar() {
     const id = Number(e.target.value);
     setSelectedId(String(id));
     setSelectedBusinessId(id);
+    window.dispatchEvent(new Event("focus"));
   }
 
   async function handleCreateBusiness() {
@@ -77,24 +78,21 @@ export default function Topbar() {
   }
 
   return (
-    <header className="h-14 bg-white border-b px-6 flex items-center justify-between">
+    <header className="topbar-shell">
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Owner</span>
+        <span className="text-sm font-medium text-slate-700">Owner</span>
 
         {loading ? (
-          <span className="text-sm text-gray-500">Loading...</span>
+          <span className="text-sm text-slate-500">Loading...</span>
         ) : businesses.length === 0 ? (
-          <button
-            onClick={handleCreateBusiness}
-            className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-          >
+          <button onClick={handleCreateBusiness} className="btn-primary">
             Create business
           </button>
         ) : (
           <select
             value={selectedId}
             onChange={handleChange}
-            className="text-sm border rounded px-2 py-1 bg-white"
+            className="select-field min-w-[260px]"
           >
             {businesses.map((b) => (
               <option key={b.id} value={b.id}>
@@ -105,10 +103,7 @@ export default function Topbar() {
         )}
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-      >
+      <button onClick={handleLogout} className="btn-danger">
         Logout
       </button>
     </header>
