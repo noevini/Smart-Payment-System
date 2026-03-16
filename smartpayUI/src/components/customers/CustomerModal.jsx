@@ -55,7 +55,7 @@ export default function CustomerModal({ open, onClose, onSaved, customer }) {
       setSaving(true);
 
       if (isEdit) {
-        await updateCustomer(customer.id, payload); // PATCH
+        await updateCustomer(customer.id, payload);
       } else {
         await createCustomer(payload);
       }
@@ -79,80 +79,91 @@ export default function CustomerModal({ open, onClose, onSaved, customer }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={handleClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        onClick={handleClose}
+      />
 
-      <div className="relative w-full max-w-lg bg-white rounded border shadow">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="font-semibold">
-            {isEdit ? "Edit customer" : "Create customer"}
+      <div className="relative w-full max-w-2xl card-surface overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              {isEdit ? "Edit customer" : "Create customer"}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+              {isEdit
+                ? "Update customer details for this record."
+                : "Add a new customer to your selected business."}
+            </p>
           </div>
 
-          <button
-            onClick={handleClose}
-            className="text-sm px-2 py-1 rounded border hover:bg-gray-50"
-          >
+          <button onClick={handleClose} className="btn-secondary">
             Close
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-4 space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm text-gray-700">Name</label>
+        <form onSubmit={onSubmit} className="p-6 space-y-5">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Name</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full border rounded px-3 py-2 text-sm"
+              className="input-field"
               placeholder="Customer name"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Email</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Email
+              </label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
                 placeholder="Optional"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Phone</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Phone
+              </label>
               <input
                 type="text"
                 value={form.phone}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, phone: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
                 placeholder="Optional"
               />
             </div>
           </div>
 
-          {error ? <div className="text-sm text-red-600">{error}</div> : null}
+          {error ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          ) : null}
 
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
+              className="btn-secondary"
               disabled={saving}
             >
               Cancel
             </button>
 
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
-              disabled={saving}
-            >
+            <button type="submit" className="btn-primary" disabled={saving}>
               {saving
                 ? isEdit
                   ? "Saving..."

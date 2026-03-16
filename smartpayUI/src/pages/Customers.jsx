@@ -18,7 +18,7 @@ export default function Customers() {
       setLoading(true);
       setError("");
       const data = await listCustomers();
-      setRows(data);
+      setRows(Array.isArray(data) ? data : (data?.content ?? []));
     } catch (e) {
       console.error(e);
       setError("Failed to load customers.");
@@ -27,7 +27,6 @@ export default function Customers() {
     }
   }
 
-  // Sync business from localStorage
   useEffect(() => {
     function syncBusiness() {
       setBusinessId(getSelectedBusinessId());
@@ -44,7 +43,6 @@ export default function Customers() {
     };
   }, []);
 
-  // Load customers when business changes
   useEffect(() => {
     if (!businessId) {
       setRows([]);
@@ -68,12 +66,12 @@ export default function Customers() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Customers</h1>
-          <p className="text-gray-600">
-            Manage customers (connected to backend).
+          <h1 className="page-title">Customers</h1>
+          <p className="page-subtitle">
+            Manage customers for your selected business.
           </p>
         </div>
 
@@ -83,10 +81,10 @@ export default function Customers() {
               alert("Select a business first.");
               return;
             }
-            setEditingCustomer(null); // create mode
+            setEditingCustomer(null);
             setOpen(true);
           }}
-          className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
+          className="btn-primary"
           disabled={!businessId}
         >
           New customer
@@ -94,63 +92,67 @@ export default function Customers() {
       </div>
 
       {!businessId ? (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-500">
           Select a business to view customers.
         </div>
       ) : null}
 
       {loading ? (
-        <div className="text-sm text-gray-600">Loading customers...</div>
+        <div className="text-sm text-slate-500">Loading customers...</div>
       ) : error ? (
         <div className="text-sm text-red-600">{error}</div>
       ) : null}
 
-      <div className="bg-white border rounded">
-        <div className="p-4 border-b font-semibold">Customer list</div>
+      <div className="card-surface">
+        <div className="p-4 border-b border-slate-200 font-semibold">
+          Customer list
+        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-gray-500">
+        <div className="table-shell">
+          <table className="table-base">
+            <thead className="table-head">
               <tr>
-                <th className="p-4">ID</th>
-                <th className="p-4">Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Phone</th>
-                <th className="p-4">Actions</th>
+                <th className="table-th">ID</th>
+                <th className="table-th">Name</th>
+                <th className="table-th">Email</th>
+                <th className="table-th">Phone</th>
+                <th className="table-th">Actions</th>
               </tr>
             </thead>
 
             <tbody>
               {rows.map((c) => (
-                <tr key={c.id} className="border-t">
-                  <td className="p-4 font-mono">{c.id}</td>
-                  <td className="p-4">{c.name ?? "—"}</td>
-                  <td className="p-4">{c.email ?? "—"}</td>
-                  <td className="p-4">{c.phone ?? "—"}</td>
-                  <td className="p-4 flex gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingCustomer(c);
-                        setOpen(true);
-                      }}
-                      className="px-3 py-1.5 rounded border text-xs hover:bg-gray-50"
-                    >
-                      Edit
-                    </button>
+                <tr key={c.id} className="table-row">
+                  <td className="table-td font-mono">{c.id}</td>
+                  <td className="table-td">{c.name ?? "—"}</td>
+                  <td className="table-td">{c.email ?? "—"}</td>
+                  <td className="table-td">{c.phone ?? "—"}</td>
+                  <td className="table-td">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingCustomer(c);
+                          setOpen(true);
+                        }}
+                        className="btn-secondary"
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      onClick={() => handleDelete(c.id)}
-                      className="px-3 py-1.5 rounded border text-xs text-red-600 hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
+                      <button
+                        onClick={() => handleDelete(c.id)}
+                        className="btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
 
               {!loading && rows.length === 0 ? (
-                <tr className="border-t">
-                  <td className="p-4 text-gray-500" colSpan={5}>
+                <tr className="table-row">
+                  <td className="table-td text-slate-500" colSpan={5}>
                     No customers found.
                   </td>
                 </tr>
@@ -160,7 +162,6 @@ export default function Customers() {
         </div>
       </div>
 
-      {/* Modal */}
       <CustomerModal
         open={open}
         customer={editingCustomer}
