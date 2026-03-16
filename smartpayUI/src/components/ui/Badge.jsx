@@ -1,13 +1,17 @@
-const styles = {
-  PAID: "bg-green-100 text-green-700",
-  PENDING: "bg-yellow-100 text-yellow-700",
-  OVERDUE: "bg-red-100 text-red-700",
-};
-
 export default function Badge({ status }) {
-  const cls = styles[status] ?? "bg-gray-100 text-gray-700";
+  const styles = {
+    PAID: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+    PENDING: "bg-amber-100 text-amber-700 border border-amber-200",
+    OVERDUE: "bg-red-100 text-red-700 border border-red-200",
+    CANCELED: "bg-slate-100 text-slate-600 border border-slate-200",
+  };
+
   return (
-    <span className={`px-2 py-1 rounded text-xs font-medium ${cls}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+        styles[status] ?? "bg-slate-100 text-slate-700 border border-slate-200"
+      }`}
+    >
       {status}
     </span>
   );

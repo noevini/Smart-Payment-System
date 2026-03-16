@@ -4,9 +4,9 @@ import {
   updatePayment,
   deletePayment,
 } from "../app/api/paymentApi";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 import Badge from "../components/ui/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function Payments() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());
@@ -14,15 +14,16 @@ export default function Payments() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editingPayment, setEditingPayment] = useState(null);
+
   const [open, setOpen] = useState(false);
+  const [editingPayment, setEditingPayment] = useState(null);
 
   async function loadPayments() {
     try {
       setLoading(true);
       setError("");
       const data = await listPayments();
-      setRows(data);
+      setRows(Array.isArray(data) ? data : (data?.content ?? []));
     } catch (e) {
       console.error(e);
       setError("Failed to load payments.");
@@ -50,6 +51,7 @@ export default function Payments() {
   useEffect(() => {
     if (!businessId) {
       setRows([]);
+      setLoading(false);
       return;
     }
     loadPayments();
@@ -61,12 +63,12 @@ export default function Payments() {
   }, [rows, filter]);
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Payments</h1>
-          <p className="text-gray-600">
-            Manage payments (connected to backend).
+          <h1 className="page-title">Payments</h1>
+          <p className="page-subtitle">
+            Manage payments for your selected business.
           </p>
         </div>
 
@@ -79,151 +81,156 @@ export default function Payments() {
             setEditingPayment(null);
             setOpen(true);
           }}
-          className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90"
+          className="btn-primary"
+          disabled={!businessId}
         >
           New payment
         </button>
       </div>
 
-      {/* Filters */}
+      {!businessId ? (
+        <div className="text-sm text-slate-500">
+          Select a business to view payments.
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap gap-2">
-        {["ALL", "PAID", "PENDING", "OVERDUE"].map((k) => (
+        {["ALL", "PAID", "PENDING", "OVERDUE", "CANCELED"].map((k) => (
           <button
             key={k}
             onClick={() => setFilter(k)}
-            className={`px-3 py-2 rounded text-sm border ${
-              filter === k
-                ? "bg-gray-200 font-medium"
-                : "bg-white hover:bg-gray-50"
-            }`}
+            className={filter === k ? "btn-primary" : "btn-secondary"}
           >
             {k === "ALL" ? "All" : k}
           </button>
         ))}
       </div>
 
-      {/* State messages */}
       {loading ? (
-        <div className="text-sm text-gray-600">Loading payments...</div>
+        <div className="text-sm text-slate-500">Loading payments...</div>
       ) : error ? (
         <div className="text-sm text-red-600">{error}</div>
       ) : null}
 
-      {/* Table */}
-      <div className="bg-white border rounded">
-        <div className="p-4 border-b font-semibold">All payments</div>
+      <div className="card-surface">
+        <div className="p-4 border-b border-slate-200 font-semibold">
+          All payments
+        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-gray-500">
+        <div className="table-shell">
+          <table className="table-base">
+            <thead className="table-head">
               <tr>
-                <th className="p-4">ID</th>
-                <th className="p-4">Direction</th>
-                <th className="p-4">Amount</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Due date</th>
-                <th className="p-4">Paid at</th>
-                <th className="p-4">Actions</th>
+                <th className="table-th">ID</th>
+                <th className="table-th">Direction</th>
+                <th className="table-th">Amount</th>
+                <th className="table-th">Status</th>
+                <th className="table-th">Due date</th>
+                <th className="table-th">Paid at</th>
+                <th className="table-th">Actions</th>
               </tr>
             </thead>
 
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td className="p-4 font-mono">{p.id}</td>
+                <tr key={p.id} className="table-row">
+                  <td className="table-td font-mono">{p.id}</td>
 
-                  <td className="p-4">{p.direction}</td>
+                  <td className="table-td">{p.direction ?? "—"}</td>
 
-                  <td className="p-4">
+                  <td className="table-td">
                     {p.currency} {p.amount}
                   </td>
 
-                  <td className="p-4">
+                  <td className="table-td">
                     <Badge status={p.status} />
                   </td>
 
-                  <td className="p-4">
+                  <td className="table-td">
                     {p.dueDate ? String(p.dueDate).slice(0, 10) : "—"}
                   </td>
 
-                  <td className="p-4">
+                  <td className="table-td">
                     {p.paidAt ? String(p.paidAt).slice(0, 10) : "—"}
                   </td>
-                  <td className="p-4 space-x-2">
-                    {(p.status === "PENDING" || p.status === "OVERDUE") && (
-                      <>
-                        <button
-                          onClick={async () => {
-                            try {
-                              await updatePayment(p.id, { status: "PAID" });
-                              await loadPayments();
-                            } catch (e) {
-                              console.error(e);
-                              alert("Failed to mark as paid.");
-                            }
-                          }}
-                          className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
-                        >
-                          Mark as paid
-                        </button>
 
-                        <button
-                          onClick={async () => {
-                            try {
-                              await updatePayment(p.id, { status: "CANCELED" });
-                              await loadPayments();
-                            } catch (e) {
-                              console.error(e);
-                              alert("Failed to cancel payment.");
-                            }
-                          }}
-                          className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    )}
-
-                    {(p.status === "PENDING" || p.status === "OVERDUE") && (
+                  <td className="table-td">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => {
                           setEditingPayment(p);
                           setOpen(true);
                         }}
-                        className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+                        className="btn-secondary"
                       >
                         Edit
                       </button>
-                    )}
 
-                    <button
-                      onClick={async () => {
-                        if (
-                          !window.confirm(
-                            "Are you sure you want to delete this payment?",
+                      {(p.status === "PENDING" || p.status === "OVERDUE") && (
+                        <>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await updatePayment(p.id, { status: "PAID" });
+                                await loadPayments();
+                              } catch (e) {
+                                console.error(e);
+                                alert("Failed to mark as paid.");
+                              }
+                            }}
+                            className="btn-secondary"
+                          >
+                            Mark as paid
+                          </button>
+
+                          <button
+                            onClick={async () => {
+                              try {
+                                await updatePayment(p.id, {
+                                  status: "CANCELED",
+                                });
+                                await loadPayments();
+                              } catch (e) {
+                                console.error(e);
+                                alert("Failed to cancel payment.");
+                              }
+                            }}
+                            className="btn-secondary"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        onClick={async () => {
+                          if (
+                            !window.confirm(
+                              "Are you sure you want to delete this payment?",
+                            )
                           )
-                        )
-                          return;
+                            return;
 
-                        try {
-                          await deletePayment(p.id);
-                          await loadPayments();
-                        } catch (e) {
-                          console.error(e);
-                          alert("Failed to delete payment.");
-                        }
-                      }}
-                      className="px-3 py-2 rounded border text-sm text-red-600 hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
+                          try {
+                            await deletePayment(p.id);
+                            await loadPayments();
+                          } catch (e) {
+                            console.error(e);
+                            alert("Failed to delete payment.");
+                          }
+                        }}
+                        className="btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
 
               {!loading && filtered.length === 0 ? (
-                <tr className="border-t">
-                  <td className="p-4 text-gray-500" colSpan={7}>
+                <tr className="table-row">
+                  <td className="table-td text-slate-500" colSpan={7}>
                     No payments found.
                   </td>
                 </tr>
