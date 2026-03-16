@@ -33,7 +33,9 @@ export default function CreatePaymentModal({
         setCustomersLoading(true);
         setCustomersError("");
         const data = await listCustomers();
-        if (!cancelled) setCustomers(Array.isArray(data) ? data : []);
+        if (!cancelled) {
+          setCustomers(Array.isArray(data) ? data : (data?.content ?? []));
+        }
       } catch (e) {
         console.error(e);
         if (!cancelled) setCustomersError("Failed to load customers.");
@@ -93,13 +95,18 @@ export default function CreatePaymentModal({
     e.preventDefault();
     setCreateError("");
 
-    if (!isEdit && !form.customerId)
+    if (!isEdit && !form.customerId) {
       return setCreateError("Select a customer.");
+    }
 
     const amountNum = Number(form.amount);
-    if (!Number.isFinite(amountNum) || amountNum <= 0)
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
       return setCreateError("Amount must be greater than 0.");
-    if (!form.dueDate) return setCreateError("Due date is required.");
+    }
+
+    if (!form.dueDate) {
+      return setCreateError("Due date is required.");
+    }
 
     const payload = {
       amount: amountNum,
@@ -135,33 +142,42 @@ export default function CreatePaymentModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={handleClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        onClick={handleClose}
+      />
 
-      <div className="relative w-full max-w-lg bg-white rounded border shadow">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="font-semibold">
-            {isEdit ? "Edit payment" : "Create payment"}
+      <div className="relative w-full max-w-2xl card-surface overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              {isEdit ? "Edit payment" : "Create payment"}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+              {isEdit
+                ? "Update payment details for this record."
+                : "Create a new payment for your selected business."}
+            </p>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-sm px-2 py-1 rounded border hover:bg-gray-50"
-          >
+
+          <button onClick={handleClose} className="btn-secondary">
             Close
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-4 space-y-4">
-          {/* Customer only in CREATE mode */}
+        <form onSubmit={onSubmit} className="p-6 space-y-5">
           {!isEdit ? (
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Customer</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Customer
+              </label>
               <select
                 value={form.customerId}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, customerId: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="select-field"
                 disabled={customersLoading}
               >
                 <option value="">
@@ -176,15 +192,18 @@ export default function CreatePaymentModal({
                   </option>
                 ))}
               </select>
+
               {customersError ? (
                 <div className="text-xs text-red-600">{customersError}</div>
               ) : null}
             </div>
           ) : null}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Amount</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Amount
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -192,70 +211,75 @@ export default function CreatePaymentModal({
                 onChange={(e) =>
                   setForm((f) => ({ ...f, amount: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
                 placeholder="e.g. 120.50"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Due date</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Due date
+              </label>
               <input
                 type="date"
                 value={form.dueDate}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, dueDate: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Currency</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Currency
+              </label>
               <input
                 type="text"
                 value={form.currency}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, currency: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
                 placeholder="e.g. GBP"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm text-gray-700">Description</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Description
+              </label>
               <input
                 type="text"
                 value={form.description}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, description: e.target.value }))
                 }
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="input-field"
                 placeholder="Optional"
               />
             </div>
           </div>
 
           {createError ? (
-            <div className="text-sm text-red-600">{createError}</div>
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {createError}
+            </div>
           ) : null}
 
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
+              className="btn-secondary"
               disabled={creating}
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
-              disabled={creating}
-            >
+
+            <button type="submit" className="btn-primary" disabled={creating}>
               {creating
                 ? isEdit
                   ? "Saving..."
