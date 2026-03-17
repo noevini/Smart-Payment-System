@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   listNotifications,
   markNotificationAsRead,
-} from "../app/api/notificationApi";
+} from "../app/api/notificationsApi";
 import NotificationTable from "../components/notifications/NotificationTable";
 
 export default function Notifications() {
+  const [filter, setFilter] = useState("ALL");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,9 +17,9 @@ export default function Notifications() {
       setError("");
 
       const data = await listNotifications();
-      setRows(data);
+      setRows(Array.isArray(data) ? data : (data?.content ?? []));
     } catch (e) {
-      console.error(e);
+      console.error("Failed to load notifications:", e);
       setError("Failed to load notifications.");
     } finally {
       setLoading(false);
@@ -29,31 +30,49 @@ export default function Notifications() {
     load();
   }, []);
 
+  const filtered = useMemo(() => {
+    if (filter === "ALL") return rows;
+    if (filter === "READ") return rows.filter((n) => n.isRead);
+    return rows.filter((n) => !n.isRead);
+  }, [rows, filter]);
+
   async function handleMarkRead(id) {
     try {
       await markNotificationAsRead(id);
       await load();
     } catch (e) {
-      console.error(e);
+      console.error("Failed to mark notification as read:", e);
       alert("Failed to mark notification as read.");
     }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell">
       <div>
-        <h1 className="text-2xl font-bold">Notifications</h1>
-        <p className="text-gray-600">System updates and payment alerts.</p>
+        <h1 className="page-title">Notifications</h1>
+        <p className="page-subtitle">
+          Track alerts and updates for your selected business.
+        </p>
       </div>
 
-      {loading && (
-        <div className="text-sm text-gray-600">Loading notifications...</div>
-      )}
+      <div className="flex flex-wrap gap-2">
+        {["ALL", "UNREAD", "READ"].map((k) => (
+          <button
+            key={k}
+            onClick={() => setFilter(k)}
+            className={filter === k ? "btn-primary" : "btn-secondary"}
+          >
+            {k === "ALL" ? "All" : k}
+          </button>
+        ))}
+      </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
-
-      {!loading && !error && (
-        <NotificationTable rows={rows} onMarkRead={handleMarkRead} />
+      {loading ? (
+        <div className="text-sm text-slate-500">Loading notifications...</div>
+      ) : error ? (
+        <div className="text-sm text-red-600">{error}</div>
+      ) : (
+        <NotificationTable rows={filtered} onMarkRead={handleMarkRead} />
       )}
     </div>
   );

@@ -1,8 +1,10 @@
 export default function NotificationBadge({ read }) {
   return (
     <span
-      className={`px-2 py-1 text-xs rounded border ${
-        read ? "bg-gray-100 text-gray-600" : "bg-black text-white border-black"
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+        read
+          ? "border border-slate-200 bg-slate-100 text-slate-600"
+          : "border border-emerald-200 bg-emerald-100 text-emerald-700"
       }`}
     >
       {read ? "Read" : "Unread"}
