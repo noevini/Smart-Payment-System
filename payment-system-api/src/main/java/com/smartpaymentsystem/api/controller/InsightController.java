@@ -1,6 +1,7 @@
 package com.smartpaymentsystem.api.controller;
 
 import com.smartpaymentsystem.api.dto.InsightResponseDTO;
+import com.smartpaymentsystem.service.InsightService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
