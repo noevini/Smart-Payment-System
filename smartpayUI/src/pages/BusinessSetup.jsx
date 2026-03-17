@@ -14,16 +14,27 @@ export default function BusinessSetup() {
     setError("");
 
     const trimmed = name.trim();
-    if (!trimmed) return setError("Business name is required.");
-    if (trimmed.length < 10)
+
+    if (!trimmed) {
+      return setError("Business name is required.");
+    }
+
+    if (trimmed.length < 10) {
       return setError("Business name must be at least 10 characters.");
-    if (trimmed.length > 140)
+    }
+
+    if (trimmed.length > 140) {
       return setError("Business name must be at most 140 characters.");
+    }
 
     try {
       setSaving(true);
       const created = await createBusiness({ name: trimmed });
-      if (created?.id != null) setSelectedBusinessId(created.id);
+
+      if (created?.id != null) {
+        setSelectedBusinessId(created.id);
+      }
+
       navigate("/dashboard");
     } catch (e2) {
       console.error(e2);
@@ -38,33 +49,39 @@ export default function BusinessSetup() {
   }
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-xl bg-white border rounded shadow-sm">
-        <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold">Set up your business</h1>
-          <p className="text-gray-600 mt-1">Create your first business.</p>
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl card-surface overflow-hidden">
+        <div className="bg-slate-900 px-8 py-8 text-white">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Set up your business
+          </h1>
+          <p className="mt-2 text-sm text-slate-300">
+            Create your first business to start using SmartPay.
+          </p>
         </div>
 
-        <form onSubmit={onSubmit} className="p-6 space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm text-gray-700">Business name</label>
+        <form onSubmit={onSubmit} className="p-8 space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Business name
+            </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
+              className="input-field"
               placeholder="e.g. Westminster Legal Services Ltd"
             />
-            <div className="text-xs text-gray-500">10–140 characters.</div>
+            <div className="text-xs text-slate-500">10–140 characters.</div>
           </div>
 
-          {error ? <div className="text-sm text-red-600">{error}</div> : null}
+          {error ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          ) : null}
 
           <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 rounded bg-black text-white text-sm hover:opacity-90 disabled:opacity-60"
-            >
+            <button type="submit" disabled={saving} className="btn-primary">
               {saving ? "Creating..." : "Create business"}
             </button>
           </div>

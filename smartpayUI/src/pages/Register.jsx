@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../app/api/authApi";
-import { getToken } from "../app/auth/tokenStorage";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -13,109 +12,135 @@ export default function Register() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const token = getToken();
-    if (token) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate]);
-
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
     try {
-      await registerUser(form);
+      setLoading(true);
+
+      await registerUser({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+        role: "OWNER",
+      });
+
       navigate("/login");
-    } catch {
-      setError("Registration failed. Please check your data.");
+    } catch (e2) {
+      console.error(e2);
+      setError(
+        e2?.response?.data?.message ||
+          e2?.response?.data?.error ||
+          "Failed to register.",
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white border rounded p-6 space-y-4"
-      >
-        <h1 className="text-xl font-bold">Register</h1>
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-lg card-surface overflow-hidden">
+        <div className="bg-slate-900 px-8 py-8 text-white">
+          <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
+          <p className="mt-2 text-sm text-slate-300">
+            Register as an owner to start using SmartPay.
+          </p>
+        </div>
 
-        {error && (
-          <div className="text-sm text-red-600 bg-red-100 p-2 rounded">
-            {error}
+        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Name</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              className="input-field"
+              placeholder="Your full name"
+              required
+            />
           </div>
-        )}
 
-        <div>
-          <label className="text-sm">Name</label>
-          <input
-            type="text"
-            name="name"
-            required
-            value={form.name}
-            onChange={handleChange}
-            className="mt-1 w-full border rounded px-3 py-2"
-          />
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Email
+              </label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
+                className="input-field"
+                placeholder="you@email.com"
+                required
+              />
+            </div>
 
-        <div>
-          <label className="text-sm">Email</label>
-          <input
-            type="email"
-            name="email"
-            required
-            value={form.email}
-            onChange={handleChange}
-            className="mt-1 w-full border rounded px-3 py-2"
-          />
-        </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Phone
+              </label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
+                className="input-field"
+                placeholder="Your phone number"
+                required
+              />
+            </div>
+          </div>
 
-        <div>
-          <label className="text-sm">Phone</label>
-          <input
-            type="text"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            className="mt-1 w-full border rounded px-3 py-2"
-          />
-        </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Password
+            </label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, password: e.target.value }))
+              }
+              className="input-field"
+              placeholder="Create a secure password"
+              required
+            />
+          </div>
 
-        <div>
-          <label className="text-sm">Password</label>
-          <input
-            type="password"
-            name="password"
-            required
-            value={form.password}
-            onChange={handleChange}
-            className="mt-1 w-full border rounded px-3 py-2"
-          />
-        </div>
+          {error ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          ) : null}
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white rounded py-2 font-medium"
-        >
-          Register
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
 
-        <p className="text-sm text-center text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </p>
-      </form>
+          <p className="text-sm text-center text-slate-500">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-medium text-emerald-600 hover:text-emerald-700"
+            >
+              Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
