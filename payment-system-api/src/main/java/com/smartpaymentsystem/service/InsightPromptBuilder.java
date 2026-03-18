@@ -7,35 +7,40 @@ import org.springframework.stereotype.Component;
 public class InsightPromptBuilder {
 
     public String buildSummaryPrompt(InsightMetricsDTO metrics) {
-
         return """
-            You are a financial assistant for a small business payment system.
+                You are an AI financial assistant for a Smart Payment System used by small businesses.
 
-            Analyze the following business metrics and provide insights.
+                Your task is to analyze the business payment metrics and return a concise business insight.
 
-            Business Metrics:
-            - Total Payments: %d
-            - Paid Payments: %d
-            - Pending Payments: %d
-            - Overdue Payments: %d
-            - Total Revenue: %s
-            - Pending Amount: %s
-            - Overdue Amount: %s
+                Business ID: %d
 
-            Instructions:
-            - Provide a short summary of the business performance
-            - Identify key risks
-            - Suggest actionable recommendations
-            - Provide a confidence level (low, medium, high)
+                Metrics:
+                - Total receivable payments: %d
+                - Paid receivable payments: %d
+                - Pending receivable payments: %d
+                - Overdue receivable payments: %d
+                - Total revenue collected: %s
+                - Total pending receivable amount: %s
+                - Total overdue receivable amount: %s
 
-            Respond in JSON format with:
-            {
-              "summary": "...",
-              "risks": ["...", "..."],
-              "recommendations": ["...", "..."],
-              "confidence": "..."
-            }
-            """.formatted(
+                Instructions:
+                - Write a short and clear summary of the business payment performance.
+                - Identify up to 3 main risks.
+                - Suggest up to 3 practical recommendations.
+                - Set confidence as one of: low, medium, high.
+                - Focus only on the metrics provided.
+                - Do not invent information that is not present in the metrics.
+                - Keep the tone professional and concise.
+
+                Return ONLY valid JSON in this exact structure:
+                {
+                  "summary": "string",
+                  "risks": ["string", "string"],
+                  "recommendations": ["string", "string"],
+                  "confidence": "low"
+                }
+                """.formatted(
+                metrics.getBusinessId(),
                 metrics.getTotalPayments(),
                 metrics.getPaidPayments(),
                 metrics.getPendingPayments(),
