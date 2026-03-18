@@ -26,15 +26,25 @@ public class InsightService {
         businessAccessService.assertCanAccessBusiness(businessId);
 
         InsightMetricsDTO metrics = buildMetrics(businessId);
-
         String prompt = insightPromptBuilder.buildSummaryPrompt(metrics);
 
         ChatClient chatClient = chatClientBuilder.build();
 
-        return chatClient.prompt()
-                .user(prompt)
-                .call()
-                .entity(InsightResponseDTO.class);
+        try {
+            InsightResponseDTO response = chatClient.prompt()
+                    .user(prompt)
+                    .call()
+                    .entity(InsightResponseDTO.class);
+
+            if (response == null) {
+                return buildFallbackResponse();
+            }
+
+            return response;
+
+        } catch (Exception exception) {
+            return buildFallbackResponse();
+        }
     }
 
     private InsightMetricsDTO buildMetrics(Long businessId) {
@@ -90,5 +100,14 @@ public class InsightService {
         metrics.setTotalOverdueAmount(totalOverdueAmount);
 
         return metrics;
+    }
+
+    private InsightResponseDTO buildFallbackResponse() {
+        InsightResponseDTO response = new InsightResponseDTO();
+        response.setSummary("Unable to generate AI insights at the moment.");
+        response.setRisks(List.of("AI response unavailable"));
+        response.setRecommendations(List.of("Please try again later"));
+        response.setConfidence("low");
+        return response;
     }
 }
