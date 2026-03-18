@@ -31,18 +31,10 @@ public class InsightService {
 
         ChatClient chatClient = chatClientBuilder.build();
 
-        String aiResponse = chatClient.prompt()
+        return chatClient.prompt()
                 .user(prompt)
                 .call()
-                .content();
-
-        InsightResponseDTO response = new InsightResponseDTO();
-        response.setSummary(aiResponse);
-        response.setRisks(List.of("Temporary risk"));
-        response.setRecommendations(List.of("Temporary recommendation"));
-        response.setConfidence("low");
-
-        return response;
+                .entity(InsightResponseDTO.class);
     }
 
     private InsightMetricsDTO buildMetrics(Long businessId) {
