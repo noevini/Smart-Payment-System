@@ -63,6 +63,15 @@ export default function AppLayout() {
         >
           Insights
         </NavLink>
+
+        <NavLink
+          to="/analytics"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+          }
+        >
+          Analytics
+        </NavLink>
       </aside>
 
       <div className="flex-1 flex flex-col">
