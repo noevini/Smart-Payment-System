@@ -10,6 +10,7 @@ import Customers from "../../pages/Customers";
 import Notifications from "../../pages/Notifications";
 import Reports from "../../pages/Reports";
 import BusinessSetup from "../../pages/BusinessSetup";
+import Insights from "../../pages/Insights";
 
 export const routes = [
   { path: "/login", element: <Login /> },
@@ -39,6 +40,7 @@ export const routes = [
       { path: "business-setup", element: <BusinessSetup /> },
       { path: "notifications", element: <Notifications /> },
       { path: "reports", element: <Reports /> },
+      { path: "insights", element: <Insights /> },
     ],
   },
 ];
