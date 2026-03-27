@@ -12,6 +12,7 @@ import Reports from "../../pages/Reports";
 import BusinessSetup from "../../pages/BusinessSetup";
 import Insights from "../../pages/Insights";
 import Analytics from "../../pages/Analytics";
+import Predictions from "../../pages/Predictions";
 
 export const routes = [
   { path: "/login", element: <Login /> },
@@ -43,6 +44,7 @@ export const routes = [
       { path: "reports", element: <Reports /> },
       { path: "insights", element: <Insights /> },
       { path: "analytics", element: <Analytics /> },
+      { path: "predictions", element: <Predictions /> },
     ],
   },
 ];
