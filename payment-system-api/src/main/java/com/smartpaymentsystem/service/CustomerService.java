@@ -25,15 +25,7 @@ public class CustomerService {
     public CustomerResponseDTO createCustomer(Long businessId, CustomerRequestDTO requestDTO) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        String email = requestDTO.getEmail();
-
-        if (email != null) {
-            email = email.trim();
-
-            if (email.isEmpty()) {
-                email = null;
-            }
-        }
+        String email = normaliseEmail(requestDTO.getEmail());
 
         if (email != null) {
             boolean exists = customerRepository.existsByBusinessIdAndEmailIgnoreCase(businessId, email);
@@ -72,15 +64,7 @@ public class CustomerService {
         Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        String email = requestDTO.getEmail();
-
-        if (email != null) {
-            email = email.trim();
-
-            if (email.isEmpty()) {
-                email = null;
-            }
-        }
+        String email = normaliseEmail(requestDTO.getEmail());
 
         if (email != null) {
             boolean changed = !email.equalsIgnoreCase(customer.getEmail());
@@ -104,11 +88,17 @@ public class CustomerService {
     }
 
     @Transactional
-    public void deleteCustomer(Long customerId, Long businessId) {
+    public void deleteCustomer(Long businessId, Long customerId) {
         businessAccessService.assertCanAccessBusiness(businessId);
-        Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
+        Customer customer = customerRepository.findByIdAndBusinessId(businessId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         customerRepository.delete(customer);
+    }
+
+    private String normaliseEmail(String email) {
+        if (email == null) return null;
+        String trimmed = email.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
