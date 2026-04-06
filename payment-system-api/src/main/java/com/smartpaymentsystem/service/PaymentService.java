@@ -25,29 +25,30 @@ public class PaymentService {
     private final BusinessAccessService businessAccessService;
     private final BusinessRepository businessRepository;
 
+    @Transactional(readOnly = true)
     public List<Payment> listPayments(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
         return paymentRepository.findByBusiness_Id(businessId);
     }
 
+    @Transactional(readOnly = true)
     public Payment getPayment(Long businessId, Long paymentId) {
         businessAccessService.assertCanAccessBusiness(businessId);
-
         return paymentRepository.findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
     }
 
-    public Payment createPayment(Long businessId, PaymentDirection direction, BigDecimal amount, String currency, String description, Instant dueDate) {
+    @Transactional
+    public Payment createPayment(Long businessId, PaymentDirection direction, BigDecimal amount,
+                                 String currency, String description, Instant dueDate) {
         businessAccessService.assertCanAccessBusiness(businessId);
+
         Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Business not found"));
 
-        String normalisedCurrency;
-        if (currency == null || currency.trim().isEmpty()) {
-            normalisedCurrency = "GBP";
-        } else {
-            normalisedCurrency = currency.trim().toUpperCase();
-        }
+        String normalisedCurrency = (currency == null || currency.trim().isEmpty())
+                ? "GBP"
+                : currency.trim().toUpperCase();
 
         Payment payment = new Payment();
         payment.setBusiness(business);
@@ -62,11 +63,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment patchPayment(
-            Long businessId,
-            Long paymentId,
-            UpdatePaymentRequestDTO request
-    ) {
+    public Payment patchPayment(Long businessId, Long paymentId, UpdatePaymentRequestDTO request) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
         Payment payment = paymentRepository
@@ -76,52 +73,25 @@ public class PaymentService {
         if (request.getAmount() != null) {
             payment.setAmount(request.getAmount());
         }
-
         if (request.getCurrency() != null) {
-            payment.setCurrency(request.getCurrency());
+            payment.setCurrency(request.getCurrency().trim().toUpperCase());
         }
-
         if (request.getDescription() != null) {
-            payment.setDescription(request.getDescription());
+            payment.setDescription(request.getDescription().trim());
         }
-
         if (request.getDueDate() != null) {
             payment.setDueDate(request.getDueDate());
         }
 
-        // status transition
         PaymentStatus newStatus = request.getStatus();
-
         if (newStatus != null && newStatus != payment.getStatus()) {
-
-            PaymentStatus current = payment.getStatus();
-
-            if (current == PaymentStatus.PAID) {
-                throw new IllegalStateException("Paid payments cannot change status");
-            }
-
-            if (current == PaymentStatus.CANCELED) {
-                throw new IllegalStateException("Canceled payments cannot change status");
-            }
-
-            boolean allowed =
-                    (current == PaymentStatus.PENDING || current == PaymentStatus.OVERDUE)
-                            && (newStatus == PaymentStatus.PAID || newStatus == PaymentStatus.CANCELED);
-
-            if (!allowed) {
-                throw new IllegalStateException("Invalid payment status transition");
-            }
-
-            payment.setStatus(newStatus);
-
-            if (newStatus == PaymentStatus.PAID) {
-                payment.setPaidAt(Instant.now());
-            }
+            applyStatusTransition(payment, newStatus);
         }
 
         return paymentRepository.save(payment);
     }
 
+    @Transactional
     public void deletePayment(Long businessId, Long paymentId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
@@ -129,8 +99,37 @@ public class PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
-            throw new ConflictException("Cannot delete payment");
+            throw new ConflictException(
+                    "Cannot delete payment with status: " + payment.getStatus()
+                            + ". Only PENDING payments can be deleted."
+            );
         }
+
         paymentRepository.delete(payment);
+    }
+
+    private void applyStatusTransition(Payment payment, PaymentStatus newStatus) {
+        PaymentStatus current = payment.getStatus();
+
+        if (current == PaymentStatus.PAID) {
+            throw new ConflictException("Paid payments cannot change status");
+        }
+        if (current == PaymentStatus.CANCELED) {
+            throw new ConflictException("Cancelled payments cannot change status");
+        }
+
+        boolean allowed = (current == PaymentStatus.PENDING || current == PaymentStatus.OVERDUE)
+                && (newStatus == PaymentStatus.PAID || newStatus == PaymentStatus.CANCELED);
+
+        if (!allowed) {
+            throw new ConflictException(
+                    "Invalid status transition from " + current + " to " + newStatus
+            );
+        }
+
+        payment.setStatus(newStatus);
+        if (newStatus == PaymentStatus.PAID) {
+            payment.setPaidAt(Instant.now());
+        }
     }
 }
