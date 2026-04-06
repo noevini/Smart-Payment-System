@@ -6,10 +6,10 @@ import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.NotificationRepository;
 import com.smartpaymentsystem.repository.PaymentRepository;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,14 +22,12 @@ public class NotificationScheduler {
     private final NotificationRepository notificationRepository;
 
     @Scheduled(cron = "0 0 8 * * *")
+    @Transactional
     public void generateOverduePaymentNotifications() {
         Instant now = Instant.now();
 
         List<Payment> overduePayments =
-                paymentRepository.findByStatusAndDueDate(
-                        PaymentStatus.PENDING,
-                        now
-                );
+                paymentRepository.findByStatusAndDueDateBefore(PaymentStatus.PENDING, now);
 
         for (Payment payment : overduePayments) {
 
