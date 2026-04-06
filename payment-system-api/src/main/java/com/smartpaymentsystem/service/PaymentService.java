@@ -67,6 +67,8 @@ public class PaymentService {
             Long paymentId,
             UpdatePaymentRequestDTO request
     ) {
+        businessAccessService.assertCanAccessBusiness(businessId);
+
         Payment payment = paymentRepository
                 .findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
