@@ -2,13 +2,17 @@ package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.*;
 import com.smartpaymentsystem.domain.PaymentStatus;
+import com.smartpaymentsystem.domain.User;
+import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.repository.StatusCountRepository;
 import com.smartpaymentsystem.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,11 +28,7 @@ public class ReportService {
     private final CurrentUserService currentUserService;
 
     public DashboardResponseDTO getDashboardSummary() {
-
-        Long businessId = currentUserService
-                .getCurrentUser()
-                .getBusiness()
-                .getId();
+        Long businessId = resolveBusinessId();
 
         List<StatusCountRepository> rows = paymentRepository.countByStatus(businessId);
 
@@ -70,7 +70,7 @@ public class ReportService {
             months = 6;
         }
 
-        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
+        Long businessId = resolveBusinessId();
         Instant from = Instant.now().minus(months, ChronoUnit.MONTHS);
 
         List<MonthlyRevenueDTO> points = paymentRepository
@@ -94,7 +94,7 @@ public class ReportService {
             limit = 20;
         }
 
-        Long businessId = currentUserService.getCurrentUser().getBusiness().getId();
+        Long businessId = resolveBusinessId();
         Instant now = Instant.now();
 
         var pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "dueDate"));
@@ -115,5 +115,18 @@ public class ReportService {
         return OverduePaymentResponseDTO.builder()
                 .items(items)
                 .build();
+    }
+
+    private Long resolveBusinessId() {
+        User user = currentUserService.getCurrentUser();
+
+        if (user.getRole() == UserRole.STAFF) {
+            if (user.getBusiness() == null) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Staff user has no assigned business");
+            }
+            return user.getBusiness().getId();
+        }
+
+        return currentUserService.getCurrentBusinessId();
     }
 }
