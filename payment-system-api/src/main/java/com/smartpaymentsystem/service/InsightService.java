@@ -2,30 +2,28 @@ package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.InsightMetricsDTO;
 import com.smartpaymentsystem.api.dto.InsightResponseDTO;
-import com.smartpaymentsystem.domain.Payment;
-import com.smartpaymentsystem.domain.PaymentDirection;
-import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class InsightService {
 
     private final BusinessAccessService businessAccessService;
-    private final PaymentRepository paymentRepository;
+    private final AnalyticsService analyticsService;   // IMPROVEMENT: reuse shared metric builder
     private final InsightPromptBuilder insightPromptBuilder;
     private final ChatClient.Builder chatClientBuilder;
 
     public InsightResponseDTO generateSummary(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        InsightMetricsDTO metrics = buildMetrics(businessId);
+        InsightMetricsDTO metrics = analyticsService.buildMetrics(businessId);
         String prompt = insightPromptBuilder.buildSummaryPrompt(metrics);
 
         ChatClient chatClient = chatClientBuilder.build();
@@ -37,69 +35,16 @@ public class InsightService {
                     .entity(InsightResponseDTO.class);
 
             if (response == null) {
+                log.warn("AI returned null response for businessId={}", businessId);
                 return buildFallbackResponse();
             }
 
             return response;
 
         } catch (Exception exception) {
+            log.error("AI insight generation failed for businessId={}: {}", businessId, exception.getMessage());
             return buildFallbackResponse();
         }
-    }
-
-    private InsightMetricsDTO buildMetrics(Long businessId) {
-        List<Payment> payments = paymentRepository.findByBusiness_Id(businessId);
-
-        InsightMetricsDTO metrics = new InsightMetricsDTO();
-
-        long totalPayments = 0;
-        long paidPayments = 0;
-        long pendingPayments = 0;
-        long overduePayments = 0;
-
-        BigDecimal totalRevenue = BigDecimal.ZERO;
-        BigDecimal totalPendingAmount = BigDecimal.ZERO;
-        BigDecimal totalOverdueAmount = BigDecimal.ZERO;
-
-        for (Payment payment : payments) {
-
-            if (payment.getDirection() != PaymentDirection.RECEIVABLE) {
-                continue;
-            }
-
-            totalPayments++;
-
-            switch (payment.getStatus()) {
-                case PAID:
-                    paidPayments++;
-                    totalRevenue = totalRevenue.add(payment.getAmount());
-                    break;
-
-                case PENDING:
-                    pendingPayments++;
-                    totalPendingAmount = totalPendingAmount.add(payment.getAmount());
-                    break;
-
-                case OVERDUE:
-                    overduePayments++;
-                    totalOverdueAmount = totalOverdueAmount.add(payment.getAmount());
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        metrics.setBusinessId(businessId);
-        metrics.setTotalPayments(totalPayments);
-        metrics.setPaidPayments(paidPayments);
-        metrics.setPendingPayments(pendingPayments);
-        metrics.setOverduePayments(overduePayments);
-        metrics.setTotalRevenue(totalRevenue);
-        metrics.setTotalPendingAmount(totalPendingAmount);
-        metrics.setTotalOverdueAmount(totalOverdueAmount);
-
-        return metrics;
     }
 
     private InsightResponseDTO buildFallbackResponse() {

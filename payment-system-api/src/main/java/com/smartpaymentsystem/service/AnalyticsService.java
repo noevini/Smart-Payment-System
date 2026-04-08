@@ -1,6 +1,7 @@
 package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.AnalyticsSummaryDTO;
+import com.smartpaymentsystem.api.dto.InsightMetricsDTO;
 import com.smartpaymentsystem.domain.Payment;
 import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.repository.PaymentRepository;
@@ -21,9 +22,23 @@ public class AnalyticsService {
     public AnalyticsSummaryDTO getSummary(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        List<Payment> payments = paymentRepository.findByBusiness_Id(businessId);
+        InsightMetricsDTO metrics = buildMetrics(businessId);
 
         AnalyticsSummaryDTO summary = new AnalyticsSummaryDTO();
+        summary.setBusinessId(businessId);
+        summary.setTotalPayments(metrics.getTotalPayments());
+        summary.setPaidPayments(metrics.getPaidPayments());
+        summary.setPendingPayments(metrics.getPendingPayments());
+        summary.setOverduePayments(metrics.getOverduePayments());
+        summary.setTotalRevenue(metrics.getTotalRevenue());
+        summary.setTotalPendingAmount(metrics.getTotalPendingAmount());
+        summary.setTotalOverdueAmount(metrics.getTotalOverdueAmount());
+
+        return summary;
+    }
+
+    public InsightMetricsDTO buildMetrics(Long businessId) {
+        List<Payment> payments = paymentRepository.findByBusiness_Id(businessId);
 
         long totalPayments = 0;
         long paidPayments = 0;
@@ -35,10 +50,7 @@ public class AnalyticsService {
         BigDecimal totalOverdueAmount = BigDecimal.ZERO;
 
         for (Payment payment : payments) {
-
-            if (payment.getDirection() != PaymentDirection.RECEIVABLE) {
-                continue;
-            }
+            if (payment.getDirection() != PaymentDirection.RECEIVABLE) continue;
 
             totalPayments++;
 
@@ -47,31 +59,29 @@ public class AnalyticsService {
                     paidPayments++;
                     totalRevenue = totalRevenue.add(payment.getAmount());
                     break;
-
                 case PENDING:
                     pendingPayments++;
                     totalPendingAmount = totalPendingAmount.add(payment.getAmount());
                     break;
-
                 case OVERDUE:
                     overduePayments++;
                     totalOverdueAmount = totalOverdueAmount.add(payment.getAmount());
                     break;
-
                 default:
                     break;
             }
         }
 
-        summary.setBusinessId(businessId);
-        summary.setTotalPayments(totalPayments);
-        summary.setPaidPayments(paidPayments);
-        summary.setPendingPayments(pendingPayments);
-        summary.setOverduePayments(overduePayments);
-        summary.setTotalRevenue(totalRevenue);
-        summary.setTotalPendingAmount(totalPendingAmount);
-        summary.setTotalOverdueAmount(totalOverdueAmount);
+        InsightMetricsDTO metrics = new InsightMetricsDTO();
+        metrics.setBusinessId(businessId);
+        metrics.setTotalPayments(totalPayments);
+        metrics.setPaidPayments(paidPayments);
+        metrics.setPendingPayments(pendingPayments);
+        metrics.setOverduePayments(overduePayments);
+        metrics.setTotalRevenue(totalRevenue);
+        metrics.setTotalPendingAmount(totalPendingAmount);
+        metrics.setTotalOverdueAmount(totalOverdueAmount);
 
-        return summary;
+        return metrics;
     }
 }
