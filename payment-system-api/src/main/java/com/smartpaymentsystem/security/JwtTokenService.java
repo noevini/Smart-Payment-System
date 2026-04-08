@@ -19,44 +19,38 @@ public class JwtTokenService {
     private final JwtProperties jwtProperties;
 
     private Key signingKey() {
-       return Keys.hmacShaKeyFor(
-         jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
-       );
+        return Keys.hmacShaKeyFor(
+                jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     public String generateToken(User user) {
         Instant now = Instant.now();
 
-        Date issuedAt = Date.from(now);
-        Date expiration = Date.from(
-                now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)
-        );
-
-        var builder = Jwts.builder()
+        JwtBuilder builder = Jwts.builder()
                 .setSubject(user.getId().toString())
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)))
                 .claim("role", user.getRole().name())
-                .signWith(signingKey(), SignatureAlgorithm.HS256);
+                .signWith(signingKey());
 
         if (user.getBusiness() != null) {
             builder.claim("businessId", user.getBusiness().getId());
         }
+
         return builder.compact();
     }
 
     private Claims parseClaims(String token) {
-        Jws<Claims> jws = Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(signingKey())
                 .build()
-                .parseClaimsJws(token);
-
-        return jws.getBody();
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Long extractUserId(String token) {
-        String subject = parseClaims(token).getSubject();
-        return Long.valueOf(subject);
+        return Long.valueOf(parseClaims(token).getSubject());
     }
 
     public boolean isTokenValid(String token) {
