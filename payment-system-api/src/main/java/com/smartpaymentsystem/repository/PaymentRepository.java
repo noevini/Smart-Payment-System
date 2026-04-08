@@ -31,7 +31,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         where p.business.id = :businessId
         group by p.status
     """)
-    List<StatusCountRepository> countByStatus(@Param("businessId") Long businessId);
+    List<StatusCountProjection> countByStatus(@Param("businessId") Long businessId);
 
     @Query("""
         select coalesce(sum(p.amount), 0)
@@ -61,6 +61,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     group by function('date_trunc', 'month', p.paidAt)
     order by function('date_trunc', 'month', p.paidAt) asc
 """)
-    List<MonthlyRevenueRepository> getMonthlyRevenue(@Param("businessId") Long businessId,
+    List<MonthlyRevenueProjection> getMonthlyRevenue(@Param("businessId") Long businessId,
                                               @Param("from") Instant from);
 }

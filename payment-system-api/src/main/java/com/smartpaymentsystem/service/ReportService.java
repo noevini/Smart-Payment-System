@@ -5,7 +5,7 @@ import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.domain.User;
 import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.PaymentRepository;
-import com.smartpaymentsystem.repository.StatusCountRepository;
+import com.smartpaymentsystem.repository.StatusCountProjection;
 import com.smartpaymentsystem.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -30,10 +30,10 @@ public class ReportService {
     public DashboardResponseDTO getDashboardSummary() {
         Long businessId = resolveBusinessId();
 
-        List<StatusCountRepository> rows = paymentRepository.countByStatus(businessId);
+        List<StatusCountProjection> rows = paymentRepository.countByStatus(businessId);
 
         Map<PaymentStatus, Long> counts = new EnumMap<>(PaymentStatus.class);
-        for (StatusCountRepository row : rows) {
+        for (StatusCountProjection row : rows) {
             counts.put(row.getStatus(), row.getCount());
         }
 
