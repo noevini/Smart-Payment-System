@@ -13,8 +13,10 @@ import com.smartpaymentsystem.repository.UserRepository;
 import com.smartpaymentsystem.security.CurrentUserService;
 import com.smartpaymentsystem.security.JwtTokenService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @AllArgsConstructor
@@ -53,7 +55,7 @@ public class AuthService {
             User currentUser = currentUserService.getCurrentUser();
 
             if (currentUser.getRole() != UserRole.OWNER) {
-                throw new ConflictException("Only owners can create staff users");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only owners can create staff users");
             }
 
             Business business = businessRepository
@@ -70,15 +72,13 @@ public class AuthService {
 
 
     public LoginResponseDTO login(LoginRequestDTO request) {
-
         String email = request.getEmail().trim().toLowerCase();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ConflictException("Invalid credentials"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
-        boolean passwordOk = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
-        if (!passwordOk) {
-            throw new ConflictException("Invalid credentials");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
         String token = jwtTokenService.generateToken(user);
