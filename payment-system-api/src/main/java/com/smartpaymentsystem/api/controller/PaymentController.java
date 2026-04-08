@@ -22,38 +22,38 @@ public class PaymentController {
     @GetMapping
     public List<PaymentResponseDTO> getPayments(@PathVariable Long businessId) {
         List<Payment> payments = paymentService.listPayments(businessId);
-
         return payments.stream()
                 .map(PaymentMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{paymentId}")
-    public PaymentResponseDTO getPaymentById(@PathVariable Long businessId, @PathVariable Long paymentId) {
+    public PaymentResponseDTO getPaymentById(@PathVariable Long businessId,
+                                             @PathVariable Long paymentId) {
         Payment payment = paymentService.getPayment(businessId, paymentId);
-
         return PaymentMapper.toResponse(payment);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponseDTO createPayment(@PathVariable Long businessId, @Valid @RequestBody PaymentRequestDTO request) {
-        Payment payment = paymentService.createPayment(businessId,
-               request.getDirection(),
-               request.getAmount(),
-               request.getCurrency(),
-               request.getDescription(),
-               request.getDueDate());
-
-       return PaymentMapper.toResponse(payment);
+    public PaymentResponseDTO createPayment(@PathVariable Long businessId,
+                                            @Valid @RequestBody PaymentRequestDTO request) {
+        Payment payment = paymentService.createPayment(
+                businessId,
+                request.getDirection(),
+                request.getAmount(),
+                request.getCurrency(),
+                request.getDescription(),
+                request.getDueDate()
+        );
+        return PaymentMapper.toResponse(payment);
     }
 
     @PatchMapping("/{paymentId}")
     public PaymentResponseDTO patchPayment(
             @PathVariable Long businessId,
             @PathVariable Long paymentId,
-            @Valid @RequestBody UpdatePaymentRequestDTO request
-    ) {
+            @Valid @RequestBody UpdatePaymentRequestDTO request) {
         Payment payment = paymentService.patchPayment(businessId, paymentId, request);
         return PaymentMapper.toResponse(payment);
     }

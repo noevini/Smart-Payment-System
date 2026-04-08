@@ -16,7 +16,7 @@ public class UserRequestDTO {
     @NotBlank
     private String name;
 
-    @Size(min = 15, max = 120)
+    @Size(max = 120)
     @Email
     @NotBlank
     private String email;
