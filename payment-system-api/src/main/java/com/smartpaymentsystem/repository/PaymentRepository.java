@@ -14,8 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+
     List<Payment> findByBusiness_Id(Long businessId);
+
+    Page<Payment> findByBusiness_Id(Long businessId, Pageable pageable);
+
     Optional<Payment> findByIdAndBusiness_Id(Long paymentId, Long businessId);
+
     List<Payment> findByStatusAndDueDateBefore(PaymentStatus status, Instant before);
 
     Page<Payment> findByBusiness_IdAndStatusNotAndDueDateBefore(
@@ -50,17 +55,17 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
                                               @Param("status") PaymentStatus status);
 
     @Query("""
-    select
-        function('date_trunc', 'month', p.paidAt) as monthStart,
-        coalesce(sum(p.amount), 0) as revenue,
-        count(p) as count
-    from Payment p
-    where p.business.id = :businessId
-      and p.status = com.smartpaymentsystem.domain.PaymentStatus.PAID
-      and p.paidAt >= :from
-    group by function('date_trunc', 'month', p.paidAt)
-    order by function('date_trunc', 'month', p.paidAt) asc
-""")
+        select
+            function('date_trunc', 'month', p.paidAt) as monthStart,
+            coalesce(sum(p.amount), 0) as revenue,
+            count(p) as count
+        from Payment p
+        where p.business.id = :businessId
+          and p.status = com.smartpaymentsystem.domain.PaymentStatus.PAID
+          and p.paidAt >= :from
+        group by function('date_trunc', 'month', p.paidAt)
+        order by function('date_trunc', 'month', p.paidAt) asc
+    """)
     List<MonthlyRevenueProjection> getMonthlyRevenue(@Param("businessId") Long businessId,
-                                              @Param("from") Instant from);
+                                                     @Param("from") Instant from);
 }
