@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./apiClient";
 
 export async function getAnalyticsSummary(businessId) {
   const response = await api.get(`/businesses/${businessId}/analytics/summary`);
