@@ -20,7 +20,7 @@ export async function createCustomer(payload) {
 }
 
 export async function updateCustomer(customerId, payload) {
-  const res = await api.patch(`${getBasePath()}/${customerId}`, payload);
+  const res = await api.put(`${getBasePath()}/${customerId}`, payload);
   return res.data;
 }
 
