@@ -1,72 +1,110 @@
 import { useEffect, useState } from "react";
 import { getAnalyticsSummary } from "../app/api/analyticsApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function Analytics() {
+  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const businessId = getSelectedBusinessId();
+  useEffect(() => {
+    function sync() {
+      setBusinessId(getSelectedBusinessId());
+    }
+    window.addEventListener("storage", sync);
+    window.addEventListener("focus", sync);
+    sync();
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", sync);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!businessId) return;
+    if (!businessId) {
+      setData(null);
+      return;
+    }
 
-    const fetchAnalytics = async () => {
+    async function fetchAnalytics() {
       try {
         setLoading(true);
         setError("");
-
         const result = await getAnalyticsSummary(businessId);
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("Failed to load analytics");
+        setError("Failed to load analytics.");
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchAnalytics();
   }, [businessId]);
 
   if (!businessId) {
-    return <div className="p-4">No business selected</div>;
+    return (
+      <div className="page-shell">
+        <h1 className="page-title">Analytics</h1>
+        <div className="text-sm text-slate-500">
+          Select a business to view analytics.
+        </div>
+      </div>
+    );
   }
-
-  if (loading) {
-    return <div className="p-4">Loading analytics...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
-  if (!data) return null;
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Analytics</h1>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card title="Total Payments" value={data.totalPayments} />
-        <Card title="Paid Payments" value={data.paidPayments} />
-        <Card title="Pending Payments" value={data.pendingPayments} />
-        <Card title="Overdue Payments" value={data.overduePayments} />
-
-        <Card title="Total Revenue" value={`£${data.totalRevenue}`} />
-        <Card title="Pending Amount" value={`£${data.totalPendingAmount}`} />
-        <Card title="Overdue Amount" value={`£${data.totalOverdueAmount}`} />
+    <div className="page-shell">
+      <div>
+        <h1 className="page-title">Analytics</h1>
+        <p className="page-subtitle">
+          Payment analytics for your selected business.
+        </p>
       </div>
+
+      {loading ? (
+        <div className="text-sm text-slate-500">Loading analytics...</div>
+      ) : error ? (
+        <div className="text-sm text-red-600">{error}</div>
+      ) : data ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <AnalyticsCard title="Total Payments" value={data.totalPayments} />
+          <AnalyticsCard title="Paid Payments" value={data.paidPayments} />
+          <AnalyticsCard
+            title="Pending Payments"
+            value={data.pendingPayments}
+          />
+          <AnalyticsCard
+            title="Overdue Payments"
+            value={data.overduePayments}
+          />
+          <AnalyticsCard
+            title="Total Revenue"
+            value={`£${data.totalRevenue}`}
+          />
+          <AnalyticsCard
+            title="Pending Amount"
+            value={`£${data.totalPendingAmount}`}
+          />
+          <AnalyticsCard
+            title="Overdue Amount"
+            value={`£${data.totalOverdueAmount}`}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function Card({ title, value }) {
+function AnalyticsCard({ title, value }) {
   return (
-    <div className="bg-white p-4 rounded-xl shadow">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-xl font-semibold mt-1">{value}</p>
+    <div className="card-surface card-content">
+      <div className="text-sm font-medium text-slate-500">{title}</div>
+      <div className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+        {value}
+      </div>
     </div>
   );
 }

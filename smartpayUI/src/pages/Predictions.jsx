@@ -1,82 +1,140 @@
 import { useEffect, useState } from "react";
 import { getPredictionSummary } from "../app/api/predictionsApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function Predictions() {
+  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const businessId = getSelectedBusinessId();
+  useEffect(() => {
+    function sync() {
+      setBusinessId(getSelectedBusinessId());
+    }
+    window.addEventListener("storage", sync);
+    window.addEventListener("focus", sync);
+    sync();
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", sync);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!businessId) return;
+    if (!businessId) {
+      setData(null);
+      return;
+    }
 
-    const fetchPredictions = async () => {
+    async function fetchPredictions() {
       try {
         setLoading(true);
         setError("");
-
         const result = await getPredictionSummary(businessId);
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("Failed to load predictions");
+        setError("Failed to load predictions.");
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchPredictions();
   }, [businessId]);
 
   if (!businessId) {
-    return <div className="p-4">No business selected</div>;
+    return (
+      <div className="page-shell">
+        <h1 className="page-title">Predictions</h1>
+        <div className="text-sm text-slate-500">
+          Select a business to view predictions.
+        </div>
+      </div>
+    );
   }
-
-  if (loading) {
-    return <div className="p-4">Loading predictions...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
-  if (!data) return null;
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Predictions</h1>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card title="Pending Payments" value={data.pendingReceivablePayments} />
-        <Card title="High Risk" value={data.highRiskPayments} />
-        <Card title="Medium Risk" value={data.mediumRiskPayments} />
-        <Card title="Low Risk" value={data.lowRiskPayments} />
-      </div>
-
-      {/* Overall Risk */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Overall Risk Level</h2>
-        <p className="capitalize text-lg font-semibold">
-          {data.overallRiskLevel}
+    <div className="page-shell">
+      <div>
+        <h1 className="page-title">Predictions</h1>
+        <p className="page-subtitle">
+          Payment risk predictions for your selected business.
         </p>
       </div>
 
-      {/* Summary */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Summary</h2>
-        <p>{data.predictionSummary}</p>
-      </div>
+      {loading ? (
+        <div className="text-sm text-slate-500">Loading predictions...</div>
+      ) : error ? (
+        <div className="text-sm text-red-600">{error}</div>
+      ) : data ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <PredictionCard
+              title="Pending Payments"
+              value={data.pendingReceivablePayments}
+            />
+            <PredictionCard
+              title="High Risk"
+              value={data.highRiskPayments}
+              color="red"
+            />
+            <PredictionCard
+              title="Medium Risk"
+              value={data.mediumRiskPayments}
+              color="amber"
+            />
+            <PredictionCard
+              title="Low Risk"
+              value={data.lowRiskPayments}
+              color="emerald"
+            />
+          </div>
+
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">
+              Overall Risk Level
+            </h2>
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize
+              ${
+                data.overallRiskLevel === "high"
+                  ? "bg-red-100 text-red-700 border border-red-200"
+                  : data.overallRiskLevel === "medium"
+                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                    : "bg-emerald-100 text-emerald-700 border border-emerald-200"
+              }`}
+            >
+              {data.overallRiskLevel}
+            </span>
+          </div>
+
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">Summary</h2>
+            <p className="text-sm text-slate-700">{data.predictionSummary}</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function Card({ title, value }) {
+function PredictionCard({ title, value, color }) {
+  const colors = {
+    red: "text-red-600",
+    amber: "text-amber-600",
+    emerald: "text-emerald-600",
+  };
+
   return (
-    <div className="bg-white p-4 rounded-xl shadow">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-xl font-semibold mt-1">{value}</p>
+    <div className="card-surface card-content">
+      <div className="text-sm font-medium text-slate-500">{title}</div>
+      <div
+        className={`mt-2 text-3xl font-bold tracking-tight ${colors[color] ?? "text-slate-900"}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }

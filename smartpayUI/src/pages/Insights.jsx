@@ -1,86 +1,121 @@
 import { useEffect, useState } from "react";
 import { getInsightSummary } from "../app/api/insightsApi";
-import { getSelectedBusinessId } from "../app/business/businessStorage";
+import { getSelectedBusinessId } from "../app/state/businessStorage";
 
 export default function Insights() {
+  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const businessId = getSelectedBusinessId();
+  useEffect(() => {
+    function sync() {
+      setBusinessId(getSelectedBusinessId());
+    }
+    window.addEventListener("storage", sync);
+    window.addEventListener("focus", sync);
+    sync();
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", sync);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!businessId) return;
+    if (!businessId) {
+      setData(null);
+      return;
+    }
 
-    const fetchInsights = async () => {
+    async function fetchInsights() {
       try {
         setLoading(true);
         setError("");
-
         const result = await getInsightSummary(businessId);
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("Failed to load insights");
+        setError("Failed to load insights.");
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchInsights();
   }, [businessId]);
 
   if (!businessId) {
-    return <div className="p-4">No business selected</div>;
-  }
-
-  if (loading) {
-    return <div className="p-4">Loading insights...</div>;
-  }
-
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
-  if (!data) {
-    return null;
+    return (
+      <div className="page-shell">
+        <h1 className="page-title">AI Insights</h1>
+        <div className="text-sm text-slate-500">
+          Select a business to view insights.
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">AI Insights</h1>
-
-      {/* Summary */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Summary</h2>
-        <p>{data.summary}</p>
+    <div className="page-shell">
+      <div>
+        <h1 className="page-title">AI Insights</h1>
+        <p className="page-subtitle">
+          AI-generated insights based on your payment data.
+        </p>
       </div>
 
-      {/* Risks */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Risks</h2>
-        <ul className="list-disc pl-5">
-          {data.risks?.map((risk, index) => (
-            <li key={index}>{risk}</li>
-          ))}
-        </ul>
-      </div>
+      {loading ? (
+        <div className="text-sm text-slate-500">Loading insights...</div>
+      ) : error ? (
+        <div className="text-sm text-red-600">{error}</div>
+      ) : data ? (
+        <div className="space-y-4">
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">Summary</h2>
+            <p className="text-sm text-slate-700">{data.summary}</p>
+          </div>
 
-      {/* Recommendations */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Recommendations</h2>
-        <ul className="list-disc pl-5">
-          {data.recommendations?.map((rec, index) => (
-            <li key={index}>{rec}</li>
-          ))}
-        </ul>
-      </div>
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">Risks</h2>
+            <ul className="list-disc pl-5 space-y-1">
+              {data.risks?.map((risk, i) => (
+                <li key={i} className="text-sm text-slate-700">
+                  {risk}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      {/* Confidence */}
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-semibold mb-2">Confidence</h2>
-        <p className="capitalize">{data.confidence}</p>
-      </div>
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">
+              Recommendations
+            </h2>
+            <ul className="list-disc pl-5 space-y-1">
+              {data.recommendations?.map((rec, i) => (
+                <li key={i} className="text-sm text-slate-700">
+                  {rec}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="card-surface card-content">
+            <h2 className="font-semibold text-slate-900 mb-2">Confidence</h2>
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize
+              ${
+                data.confidence === "high"
+                  ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                  : data.confidence === "medium"
+                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                    : "bg-red-100 text-red-700 border border-red-200"
+              }`}
+            >
+              {data.confidence}
+            </span>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
