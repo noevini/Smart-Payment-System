@@ -1,29 +1,44 @@
 import { NavLink } from "react-router-dom";
 
-const links = [
+/**
+ * Navigation links configuration.
+ * Add new pages here — no need to touch AppLayout.
+ */
+const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/payments", label: "Payments" },
   { to: "/customers", label: "Customers" },
+  { to: "/reports", label: "Reports" },
+  { to: "/notifications", label: "Notifications" },
+  { to: "/analytics", label: "Analytics" },
+  { to: "/insights", label: "Insights" },
+  { to: "/predictions", label: "Predictions" },
 ];
 
+/**
+ * Sidebar component — handles all navigation links.
+ * Extracted from AppLayout to keep layout and navigation concerns separate.
+ */
 export default function Sidebar() {
   return (
-    <aside className="w-64 bg-white border-r p-4">
-      <h1 className="text-lg font-bold">SmartPay</h1>
-      <p className="text-sm text-gray-500 mb-4">IPD demo</p>
+    <aside className="w-64 bg-slate-900 text-white p-4 space-y-2 flex flex-col">
+      {/* Branding */}
+      <div className="px-3 py-4 mb-4">
+        <h1 className="text-xl font-bold tracking-tight">SmartPay</h1>
+        <p className="text-xs text-slate-400 mt-1">Payment Tracking System</p>
+      </div>
 
-      <nav className="space-y-1">
-        {links.map((l) => (
+      {/* Navigation links */}
+      <nav className="flex-1 space-y-1">
+        {NAV_LINKS.map((link) => (
           <NavLink
-            key={l.to}
-            to={l.to}
+            key={link.to}
+            to={link.to}
             className={({ isActive }) =>
-              `block px-3 py-2 rounded text-sm ${
-                isActive ? "bg-gray-200 font-medium" : "hover:bg-gray-100"
-              }`
+              `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
             }
           >
-            {l.label}
+            {link.label}
           </NavLink>
         ))}
       </nav>

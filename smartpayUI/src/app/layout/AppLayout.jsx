@@ -1,91 +1,28 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
+/**
+ * AppLayout — main application shell.
+ * Responsible ONLY for the overall page structure:
+ * - Sidebar (navigation)
+ * - Topbar (business selector + logout)
+ * - Main content area (rendered via <Outlet />)
+ *
+ * Navigation links live in Sidebar.jsx
+ * Business switching and logout live in Topbar.jsx
+ */
 export default function AppLayout() {
   return (
     <div className="min-h-screen flex bg-slate-50">
-      <aside className="w-64 bg-slate-900 text-white p-4 space-y-2">
-        <div className="px-3 py-4 mb-4">
-          <h1 className="text-xl font-bold tracking-tight">SmartPay</h1>
-          <p className="text-xs text-slate-400 mt-1">Payment Tracking System</p>
-        </div>
+      {/* Left sidebar — navigation */}
+      <Sidebar />
 
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Dashboard
-        </NavLink>
-
-        <NavLink
-          to="/payments"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Payments
-        </NavLink>
-
-        <NavLink
-          to="/customers"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Customers
-        </NavLink>
-
-        <NavLink
-          to="/reports"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Reports
-        </NavLink>
-
-        <NavLink
-          to="/notifications"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Notifications
-        </NavLink>
-
-        <NavLink
-          to="/insights"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Insights
-        </NavLink>
-
-        <NavLink
-          to="/analytics"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Analytics
-        </NavLink>
-
-        <NavLink
-          to="/predictions"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
-          }
-        >
-          Predictions
-        </NavLink>
-      </aside>
-
-      <div className="flex-1 flex flex-col">
+      {/* Right side — topbar + page content */}
+      <div className="flex-1 flex flex-col min-w-0">
         <Topbar />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-auto">
+          {/* Child routes render here */}
           <Outlet />
         </main>
       </div>
