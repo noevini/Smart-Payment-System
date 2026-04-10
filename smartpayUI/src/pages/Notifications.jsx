@@ -1,47 +1,37 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  listNotifications,
-  markNotificationAsRead,
-} from "../api/notificationApi";
+import { useMemo, useState } from "react";
+import { markNotificationAsRead } from "../api/notificationApi";
+import { useNotifications } from "../hooks/useNotifications";
 import NotificationTable from "../components/notifications/NotificationTable";
 
+/**
+ * Notifications page — lists and manages notifications for the current business.
+ *
+ * Uses useNotifications hook for data fetching.
+ * Supports filtering by read/unread status.
+ */
 export default function Notifications() {
+  const { notifications, loading, error, reload } = useNotifications();
+
+  // Filter — ALL, UNREAD, READ
   const [filter, setFilter] = useState("ALL");
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  async function load() {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await listNotifications();
-      setRows(Array.isArray(data) ? data : (data?.content ?? []));
-    } catch (e) {
-      console.error("Failed to load notifications:", e);
-      setError("Failed to load notifications.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    load();
-  }, []);
-
+  // Filter notifications by read status
   const filtered = useMemo(() => {
-    if (filter === "ALL") return rows;
-    if (filter === "READ") return rows.filter((n) => n.isRead);
-    return rows.filter((n) => !n.isRead);
-  }, [rows, filter]);
+    if (filter === "ALL") return notifications;
+    if (filter === "READ") return notifications.filter((n) => n.isRead);
+    return notifications.filter((n) => !n.isRead);
+  }, [notifications, filter]);
 
+  /**
+   * Marks a notification as read and reloads the list.
+   * @param {number} id - notification ID
+   */
   async function handleMarkRead(id) {
     try {
       await markNotificationAsRead(id);
-      await load();
+      await reload();
     } catch (e) {
-      console.error("Failed to mark notification as read:", e);
+      console.error(e);
       alert("Failed to mark notification as read.");
     }
   }
@@ -55,6 +45,7 @@ export default function Notifications() {
         </p>
       </div>
 
+      {/* Filter buttons */}
       <div className="flex flex-wrap gap-2">
         {["ALL", "UNREAD", "READ"].map((k) => (
           <button
@@ -62,11 +53,12 @@ export default function Notifications() {
             onClick={() => setFilter(k)}
             className={filter === k ? "btn-primary" : "btn-secondary"}
           >
-            {k === "ALL" ? "All" : k}
+            {k}
           </button>
         ))}
       </div>
 
+      {/* Loading / error states */}
       {loading ? (
         <div className="text-sm text-slate-500">Loading notifications...</div>
       ) : error ? (

@@ -1,62 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
-import { listPayments, updatePayment, deletePayment } from "../api/paymentApi";
-import { getSelectedBusinessId } from "../state/businessStorage";
+import { useMemo, useState } from "react";
+import { updatePayment, deletePayment } from "../api/paymentApi";
+import { usePayments } from "../hooks/usePayments";
 import Badge from "../components/ui/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
 
+/**
+ * Payments page — lists and manages payments for the selected business.
+ *
+ * Uses usePayments hook for data fetching and business sync.
+ * Supports filtering by status and create/edit/delete actions.
+ */
 export default function Payments() {
-  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
-  const [filter, setFilter] = useState("ALL");
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { payments, loading, error, businessId, reload } = usePayments();
 
+  // Status filter — "ALL" shows everything
+  const [filter, setFilter] = useState("ALL");
+
+  // Modal state — null means create, object means edit
   const [open, setOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
 
-  async function loadPayments() {
-    try {
-      setLoading(true);
-      setError("");
-      const data = await listPayments();
-      setRows(Array.isArray(data) ? data : (data?.content ?? []));
-    } catch (e) {
-      console.error(e);
-      setError("Failed to load payments.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    function syncBusiness() {
-      setBusinessId(getSelectedBusinessId());
-    }
-
-    window.addEventListener("storage", syncBusiness);
-    window.addEventListener("focus", syncBusiness);
-
-    syncBusiness();
-
-    return () => {
-      window.removeEventListener("storage", syncBusiness);
-      window.removeEventListener("focus", syncBusiness);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!businessId) {
-      setRows([]);
-      setLoading(false);
-      return;
-    }
-    loadPayments();
-  }, [businessId]);
-
+  // Filter payments by selected status
   const filtered = useMemo(() => {
-    if (filter === "ALL") return rows;
-    return rows.filter((p) => p.status === filter);
-  }, [rows, filter]);
+    if (filter === "ALL") return payments;
+    return payments.filter((p) => p.status === filter);
+  }, [payments, filter]);
 
   return (
     <div className="page-shell">
@@ -84,12 +52,14 @@ export default function Payments() {
         </button>
       </div>
 
+      {/* No business selected */}
       {!businessId ? (
         <div className="text-sm text-slate-500">
           Select a business to view payments.
         </div>
       ) : null}
 
+      {/* Status filter buttons */}
       <div className="flex flex-wrap gap-2">
         {["ALL", "PAID", "PENDING", "OVERDUE", "CANCELED"].map((k) => (
           <button
@@ -102,12 +72,14 @@ export default function Payments() {
         ))}
       </div>
 
+      {/* Loading / error states */}
       {loading ? (
         <div className="text-sm text-slate-500">Loading payments...</div>
       ) : error ? (
         <div className="text-sm text-red-600">{error}</div>
       ) : null}
 
+      {/* Payments table */}
       <div className="card-surface">
         <div className="p-4 border-b border-slate-200 font-semibold">
           All payments
@@ -131,27 +103,22 @@ export default function Payments() {
               {filtered.map((p) => (
                 <tr key={p.id} className="table-row">
                   <td className="table-td font-mono">{p.id}</td>
-
                   <td className="table-td">{p.direction ?? "—"}</td>
-
                   <td className="table-td">
                     {p.currency} {p.amount}
                   </td>
-
                   <td className="table-td">
                     <Badge status={p.status} />
                   </td>
-
                   <td className="table-td">
                     {p.dueDate ? String(p.dueDate).slice(0, 10) : "—"}
                   </td>
-
                   <td className="table-td">
                     {p.paidAt ? String(p.paidAt).slice(0, 10) : "—"}
                   </td>
-
                   <td className="table-td">
                     <div className="flex flex-wrap gap-2">
+                      {/* Edit button */}
                       <button
                         onClick={() => {
                           setEditingPayment(p);
@@ -162,13 +129,14 @@ export default function Payments() {
                         Edit
                       </button>
 
+                      {/* Mark as paid / cancel — only for PENDING or OVERDUE */}
                       {(p.status === "PENDING" || p.status === "OVERDUE") && (
                         <>
                           <button
                             onClick={async () => {
                               try {
                                 await updatePayment(p.id, { status: "PAID" });
-                                await loadPayments();
+                                await reload();
                               } catch (e) {
                                 console.error(e);
                                 alert("Failed to mark as paid.");
@@ -185,7 +153,7 @@ export default function Payments() {
                                 await updatePayment(p.id, {
                                   status: "CANCELED",
                                 });
-                                await loadPayments();
+                                await reload();
                               } catch (e) {
                                 console.error(e);
                                 alert("Failed to cancel payment.");
@@ -198,27 +166,29 @@ export default function Payments() {
                         </>
                       )}
 
-                      <button
-                        onClick={async () => {
-                          if (
-                            !window.confirm(
-                              "Are you sure you want to delete this payment?",
+                      {/* Delete — only for PENDING */}
+                      {p.status === "PENDING" && (
+                        <button
+                          onClick={async () => {
+                            if (
+                              !window.confirm(
+                                "Are you sure you want to delete this payment?",
+                              )
                             )
-                          )
-                            return;
-
-                          try {
-                            await deletePayment(p.id);
-                            await loadPayments();
-                          } catch (e) {
-                            console.error(e);
-                            alert("Failed to delete payment.");
-                          }
-                        }}
-                        className="btn-danger"
-                      >
-                        Delete
-                      </button>
+                              return;
+                            try {
+                              await deletePayment(p.id);
+                              await reload();
+                            } catch (e) {
+                              console.error(e);
+                              alert("Failed to delete payment.");
+                            }
+                          }}
+                          className="btn-danger"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -236,6 +206,7 @@ export default function Payments() {
         </div>
       </div>
 
+      {/* Create / edit modal */}
       <CreatePaymentModal
         open={open}
         payment={editingPayment}
@@ -243,7 +214,7 @@ export default function Payments() {
           setOpen(false);
           setEditingPayment(null);
         }}
-        onCreated={loadPayments}
+        onCreated={reload}
       />
     </div>
   );

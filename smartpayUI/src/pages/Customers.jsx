@@ -1,64 +1,32 @@
-import { useEffect, useState } from "react";
-import { listCustomers, deleteCustomer } from "../api/customerApi";
-import { getSelectedBusinessId } from "../state/businessStorage";
+import { useState } from "react";
+import { deleteCustomer } from "../api/customerApi";
+import { useCustomers } from "../hooks/useCustomers";
 import CustomerModal from "../components/customers/CustomerModal";
 
+/**
+ * Customers page — lists and manages customers for the selected business.
+ *
+ * Uses useCustomers hook for data fetching and business sync.
+ * Supports create, edit, and delete actions via CustomerModal.
+ */
 export default function Customers() {
-  const [businessId, setBusinessId] = useState(getSelectedBusinessId());
+  const { customers, loading, error, businessId, reload } = useCustomers();
 
+  // Modal state — null means create, object means edit
   const [open, setOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
 
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  async function loadCustomers() {
-    try {
-      setLoading(true);
-      setError("");
-      const data = await listCustomers();
-      setRows(Array.isArray(data) ? data : (data?.content ?? []));
-    } catch (e) {
-      console.error(e);
-      setError("Failed to load customers.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    function syncBusiness() {
-      setBusinessId(getSelectedBusinessId());
-    }
-
-    window.addEventListener("storage", syncBusiness);
-    window.addEventListener("focus", syncBusiness);
-
-    syncBusiness();
-
-    return () => {
-      window.removeEventListener("storage", syncBusiness);
-      window.removeEventListener("focus", syncBusiness);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!businessId) {
-      setRows([]);
-      setLoading(false);
-      return;
-    }
-    loadCustomers();
-  }, [businessId]);
-
+  /**
+   * Handles customer deletion with confirmation.
+   * @param {number} id - customer ID to delete
+   */
   async function handleDelete(id) {
     const ok = window.confirm("Are you sure you want to delete this customer?");
     if (!ok) return;
 
     try {
       await deleteCustomer(id);
-      await loadCustomers();
+      await reload();
     } catch (e) {
       console.error(e);
       alert("Failed to delete customer.");
@@ -91,18 +59,21 @@ export default function Customers() {
         </button>
       </div>
 
+      {/* No business selected */}
       {!businessId ? (
         <div className="text-sm text-slate-500">
           Select a business to view customers.
         </div>
       ) : null}
 
+      {/* Loading / error states */}
       {loading ? (
         <div className="text-sm text-slate-500">Loading customers...</div>
       ) : error ? (
         <div className="text-sm text-red-600">{error}</div>
       ) : null}
 
+      {/* Customers table */}
       <div className="card-surface">
         <div className="p-4 border-b border-slate-200 font-semibold">
           Customer list
@@ -121,7 +92,7 @@ export default function Customers() {
             </thead>
 
             <tbody>
-              {rows.map((c) => (
+              {customers.map((c) => (
                 <tr key={c.id} className="table-row">
                   <td className="table-td font-mono">{c.id}</td>
                   <td className="table-td">{c.name ?? "—"}</td>
@@ -138,7 +109,6 @@ export default function Customers() {
                       >
                         Edit
                       </button>
-
                       <button
                         onClick={() => handleDelete(c.id)}
                         className="btn-danger"
@@ -150,7 +120,7 @@ export default function Customers() {
                 </tr>
               ))}
 
-              {!loading && rows.length === 0 ? (
+              {!loading && customers.length === 0 ? (
                 <tr className="table-row">
                   <td className="table-td text-slate-500" colSpan={5}>
                     No customers found.
@@ -162,6 +132,7 @@ export default function Customers() {
         </div>
       </div>
 
+      {/* Create / edit modal */}
       <CustomerModal
         open={open}
         customer={editingCustomer}
@@ -169,7 +140,7 @@ export default function Customers() {
           setOpen(false);
           setEditingCustomer(null);
         }}
-        onSaved={loadCustomers}
+        onSaved={reload}
       />
     </div>
   );
