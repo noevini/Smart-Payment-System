@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getDashboardSummary } from "../app/api/reportsApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+import { getDashboardSummary } from "../api/reportsApi";
+import { getSelectedBusinessId } from "../state/businessStorage";
 import StatCard from "../components/dashboard/StatCard";
 import RecentPaymentsTable from "../components/dashboard/RecentPaymentsTable";
-import { listPayments } from "../app/api/paymentApi";
+import { listPayments } from "../api/paymentApi";
 
 /**
  * Dashboard page — shows a financial overview for the selected business.

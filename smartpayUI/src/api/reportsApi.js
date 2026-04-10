@@ -1,4 +1,4 @@
-import api from "./apiClient";
+import api from "./client";
 
 /**
  * Reports API — wraps the backend /reports endpoints.

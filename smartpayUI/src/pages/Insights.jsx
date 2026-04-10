@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getInsightSummary } from "../app/api/insightsApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+import { getInsightSummary } from "../api/insightApi";
+import { getSelectedBusinessId } from "../state/businessStorage";
 
 export default function Insights() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());

@@ -1,4 +1,4 @@
-import { api } from "./apiClient";
+import { api } from "./client";
 
 export async function loginUser(payload) {
   const response = await api.post("/auth/login", payload);

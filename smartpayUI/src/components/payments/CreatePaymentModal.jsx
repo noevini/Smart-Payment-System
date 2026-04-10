@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { createPayment, updatePayment } from "../../app/api/paymentApi";
-import { listCustomers } from "../../app/api/customersApi";
+import { createPayment, updatePayment } from "../../api/paymentApi";
+import { listCustomers } from "../../api/customerApi";
 
 export default function CreatePaymentModal({
   open,

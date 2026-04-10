@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../app/api/authApi";
-import { listMyBusinesses } from "../app/api/businessApi";
-import { setToken, getToken } from "../app/auth/tokenStorage";
+import { loginUser } from "../api/authApi";
+import { listMyBusinesses } from "../api/businessApi";
+import { setToken, getToken } from "../auth/tokenStorage";
 import {
   getSelectedBusinessId,
   setSelectedBusinessId,
-} from "../app/state/businessStorage";
+} from "../state/businessStorage";
 
 export default function Login() {
   const navigate = useNavigate();

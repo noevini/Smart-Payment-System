@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  listPayments,
-  updatePayment,
-  deletePayment,
-} from "../app/api/paymentApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+import { listPayments, updatePayment, deletePayment } from "../api/paymentApi";
+import { getSelectedBusinessId } from "../state/businessStorage";
 import Badge from "../components/ui/Badge";
 import CreatePaymentModal from "../components/payments/CreatePaymentModal";
 

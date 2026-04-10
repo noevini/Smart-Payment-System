@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   listNotifications,
   markNotificationAsRead,
-} from "../app/api/notificationApi";
+} from "../api/notificationApi";
 import NotificationTable from "../components/notifications/NotificationTable";
 
 export default function Notifications() {

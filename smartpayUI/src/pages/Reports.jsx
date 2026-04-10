@@ -3,8 +3,8 @@ import {
   getDashboardSummary,
   getOverduePayments,
   getMonthlyRevenue,
-} from "../app/api/reportsApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+} from "../api/reportsApi";
+import { getSelectedBusinessId } from "../state/businessStorage";
 import ReportCard from "../components/reports/ReportCard";
 import OverduePaymentsTable from "../components/reports/OverduePaymentsTable";
 

@@ -1,4 +1,4 @@
-import api from "./apiClient";
+import api from "./client";
 import { getSelectedBusinessId } from "../state/businessStorage";
 
 function getBasePath() {

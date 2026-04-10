@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import Topbar from "../../app/layout/Topbar";
 
 /**
  * AppLayout — main application shell.

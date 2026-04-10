@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAnalyticsSummary } from "../app/api/analyticsApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+import { getSelectedBusinessId } from "../state/businessStorage";
 
 export default function Analytics() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());

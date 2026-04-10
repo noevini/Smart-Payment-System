@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createCustomer, updateCustomer } from "../../app/api/customersApi";
+import { createCustomer, updateCustomer } from "../../api/customerApi";
 
 export default function CustomerModal({ open, onClose, onSaved, customer }) {
   const isEdit = !!customer;

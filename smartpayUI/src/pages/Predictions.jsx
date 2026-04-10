@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPredictionSummary } from "../app/api/predictionsApi";
-import { getSelectedBusinessId } from "../app/state/businessStorage";
+import { getPredictionSummary } from "../api/predictionApi";
+import { getSelectedBusinessId } from "../state/businessStorage";
 
 export default function Predictions() {
   const [businessId, setBusinessId] = useState(getSelectedBusinessId());

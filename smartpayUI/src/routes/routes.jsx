@@ -1,18 +1,18 @@
 import { Navigate } from "react-router-dom";
-import AppLayout from "../layout/AppLayout";
-import RequireAuth from "./RequireAuth";
+import AppLayout from "../components/layout/AppLayout";
+import RequireAuth from "./src/app/routes/RequireAuth";
 
-import Login from "../../pages/Login";
-import Register from "../../pages/Register";
-import Dashboard from "../../pages/Dashboard";
-import Payments from "../../pages/Payments";
-import Customers from "../../pages/Customers";
-import Notifications from "../../pages/Notifications";
-import Reports from "../../pages/Reports";
-import BusinessSetup from "../../pages/BusinessSetup";
-import Insights from "../../pages/Insights";
-import Analytics from "../../pages/Analytics";
-import Predictions from "../../pages/Predictions";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import Dashboard from "../pages/Dashboard";
+import Payments from "../pages/Payments";
+import Customers from "../pages/Customers";
+import Notifications from "../pages/Notifications";
+import Reports from "../pages/Reports";
+import BusinessSetup from "../pages/BusinessSetup";
+import Insights from "../pages/Insights";
+import Analytics from "../pages/Analytics";
+import Predictions from "../pages/Predictions";
 
 export const routes = [
   { path: "/login", element: <Login /> },
