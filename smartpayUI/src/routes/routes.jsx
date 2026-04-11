@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
-import RequireAuth from "./src/app/routes/RequireAuth";
+import RequireAuth from "./RequireAuth";
 
 import Login from "../pages/Login";
 import Register from "../pages/Register";
