@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAnalyticsSummary } from "../app/api/analyticsApi";
+import { getAnalyticsSummary } from "../api/analyticsApi";
 import { getSelectedBusinessId } from "../state/businessStorage";
 
 export default function Analytics() {
