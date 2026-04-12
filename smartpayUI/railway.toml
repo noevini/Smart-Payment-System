@@ -1,0 +1,10 @@
+# Deploy this service with root directory: smartpayUI (monorepo).
+# Set VITE_API_URL in Railway Variables to your backend URL (no trailing slash), e.g.
+#   https://smart-payment-system-production.up.railway.app
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "serve -s dist -l tcp://0.0.0.0:$PORT"
