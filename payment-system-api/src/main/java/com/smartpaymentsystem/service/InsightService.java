@@ -3,22 +3,23 @@ package com.smartpaymentsystem.service;
 import com.smartpaymentsystem.api.dto.InsightMetricsDTO;
 import com.smartpaymentsystem.api.dto.InsightResponseDTO;
 import com.smartpaymentsystem.security.BusinessAccessService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class InsightService {
 
     private final BusinessAccessService businessAccessService;
     private final AnalyticsService analyticsService;   // IMPROVEMENT: reuse shared metric builder
     private final InsightPromptBuilder insightPromptBuilder;
-    private final ChatClient.Builder chatClientBuilder;
+    private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
 
     public InsightResponseDTO generateSummary(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
@@ -26,7 +27,13 @@ public class InsightService {
         InsightMetricsDTO metrics = analyticsService.buildMetrics(businessId);
         String prompt = insightPromptBuilder.buildSummaryPrompt(metrics);
 
-        ChatClient chatClient = chatClientBuilder.build();
+        ChatClient.Builder builder = chatClientBuilderProvider.getIfAvailable();
+        if (builder == null) {
+            log.warn("ChatClient is not configured; returning fallback for businessId={}", businessId);
+            return buildFallbackResponse();
+        }
+
+        ChatClient chatClient = builder.build();
 
         try {
             InsightResponseDTO response = chatClient.prompt()
