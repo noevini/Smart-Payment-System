@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearToken, getToken } from "../auth/tokenStorage";
-import { listMyBusinesses, createBusiness } from "../api/businessApi";
+import { clearToken, getToken } from "../../auth/tokenStorage";
+import { listMyBusinesses, createBusiness } from "../../api/businessApi";
 import {
   clearSelectedBusinessId,
   getSelectedBusinessId,
   setSelectedBusinessId,
-} from "../state/businessStorage";
+} from "../../state/businessStorage";
 
 /**
  * Decodes the JWT payload to extract user information (role, name).
