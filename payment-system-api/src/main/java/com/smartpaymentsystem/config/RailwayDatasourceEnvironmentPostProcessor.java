@@ -35,6 +35,13 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
             return;
         }
         raw = raw.trim();
+        if (raw.startsWith("jdbc:postgresql://")) {
+            // jdbc:postgresql://user:pass@host:port/db is invalid for the PG driver (host becomes "user:pass@host")
+            if (jdbcPostgresqlHasEmbeddedCredentials(raw)) {
+                normalizeJdbcPostgresqlWithEmbeddedCredentials(raw, map);
+            }
+            return;
+        }
         if (raw.startsWith("jdbc:")) {
             return;
         }
@@ -71,6 +78,98 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
 
         String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + path;
         String query = uri.getRawQuery();
+        if (query != null && !query.isEmpty()) {
+            jdbcUrl += "?" + query;
+            if (!containsSslMode(query)) {
+                jdbcUrl += "&sslmode=require";
+            }
+        } else {
+            jdbcUrl += "?sslmode=require";
+        }
+
+        map.put("spring.datasource.url", jdbcUrl);
+        if (username != null) {
+            map.put("spring.datasource.username", username);
+        }
+        if (password != null) {
+            map.put("spring.datasource.password", password);
+        }
+    }
+
+    /**
+     * True when the URL looks like {@code jdbc:postgresql://username:password@host:port/database}.
+     * The PostgreSQL JDBC driver does not treat this like HTTP; it must be split into URL + datasource properties.
+     */
+    private static boolean jdbcPostgresqlHasEmbeddedCredentials(String raw) {
+        String prefix = "jdbc:postgresql://";
+        if (!raw.startsWith(prefix)) {
+            return false;
+        }
+        String rest = raw.substring(prefix.length());
+        int at = rest.lastIndexOf('@');
+        if (at <= 0) {
+            return false;
+        }
+        int slashAfterAt = rest.indexOf('/', at);
+        return slashAfterAt > 0;
+    }
+
+    private static void normalizeJdbcPostgresqlWithEmbeddedCredentials(String raw, Map<String, Object> map) {
+        String prefix = "jdbc:postgresql://";
+        String rest = raw.substring(prefix.length());
+        int at = rest.lastIndexOf('@');
+        String userInfo = rest.substring(0, at);
+        String hostPathAndQuery = rest.substring(at + 1);
+
+        String username = null;
+        String password = null;
+        int colon = userInfo.indexOf(':');
+        if (colon > 0) {
+            username = urlDecode(userInfo.substring(0, colon));
+            password = urlDecode(userInfo.substring(colon + 1));
+        } else if (!userInfo.isEmpty()) {
+            username = urlDecode(userInfo);
+        }
+
+        int q = hostPathAndQuery.indexOf('?');
+        String hostPath = q >= 0 ? hostPathAndQuery.substring(0, q) : hostPathAndQuery;
+        String query = q >= 0 ? hostPathAndQuery.substring(q + 1) : null;
+
+        int slash = hostPath.indexOf('/');
+        if (slash <= 0) {
+            return;
+        }
+        String hostPort = hostPath.substring(0, slash);
+        String database = hostPath.substring(slash + 1);
+        if (database.isEmpty()) {
+            return;
+        }
+
+        String host;
+        int port;
+        if (hostPort.startsWith("[")) {
+            int bracketEnd = hostPort.indexOf(']');
+            if (bracketEnd < 0) {
+                return;
+            }
+            host = hostPort.substring(0, bracketEnd + 1);
+            if (bracketEnd + 1 < hostPort.length() && hostPort.charAt(bracketEnd + 1) == ':') {
+                port = Integer.parseInt(hostPort.substring(bracketEnd + 2));
+            } else {
+                port = 5432;
+            }
+        } else {
+            int colonHp = hostPort.lastIndexOf(':');
+            if (colonHp > 0) {
+                host = hostPort.substring(0, colonHp);
+                port = Integer.parseInt(hostPort.substring(colonHp + 1));
+            } else {
+                host = hostPort;
+                port = 5432;
+            }
+        }
+
+        String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + database;
         if (query != null && !query.isEmpty()) {
             jdbcUrl += "?" + query;
             if (!containsSslMode(query)) {
