@@ -55,11 +55,18 @@ export default function Topbar() {
    */
   async function loadBusinesses() {
     const data = await listMyBusinesses();
-    setBusinesses(data);
+    const normalized = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.content)
+        ? data.content
+        : Array.isArray(data?.items)
+          ? data.items
+          : [];
+    setBusinesses(normalized);
 
     const saved = getSelectedBusinessId();
-    const validSaved = data.some((b) => b.id === saved) ? saved : null;
-    const initial = validSaved ?? data?.[0]?.id ?? null;
+    const validSaved = normalized.some((b) => b.id === saved) ? saved : null;
+    const initial = validSaved ?? normalized?.[0]?.id ?? null;
 
     if (initial) {
       setSelectedId(String(initial));
