@@ -23,10 +23,9 @@ api.interceptors.request.use((config) => {
     config.headers["X-Business-Id"] = String(businessId);
   }
 
-  // Prevent 304 responses — axios treats them as errors (outside 2xx range)
+  // Bust browser cache on GET requests to avoid 304 — axios rejects non-2xx
   if (config.method === "get" || !config.method) {
-    config.headers["Cache-Control"] = "no-cache";
-    config.headers["Pragma"] = "no-cache";
+    config.params = { ...config.params, _t: Date.now() };
   }
 
   return config;
