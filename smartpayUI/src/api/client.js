@@ -23,6 +23,12 @@ api.interceptors.request.use((config) => {
     config.headers["X-Business-Id"] = String(businessId);
   }
 
+  // Prevent 304 responses — axios treats them as errors (outside 2xx range)
+  if (config.method === "get" || !config.method) {
+    config.headers["Cache-Control"] = "no-cache";
+    config.headers["Pragma"] = "no-cache";
+  }
+
   return config;
 });
 

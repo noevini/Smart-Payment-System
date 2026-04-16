@@ -61,7 +61,14 @@ export default function Login() {
     try {
       const data = await loginUser({ email, password });
       setToken(data.token);
+    } catch (err) {
+      console.error(err);
+      setError("Invalid email or password.");
+      setLoading(false);
+      return;
+    }
 
+    try {
       const businesses = await listMyBusinesses();
 
       if (!Array.isArray(businesses) || businesses.length === 0) {
@@ -77,7 +84,7 @@ export default function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Invalid email or password.");
+      setError("Login succeeded but failed to load businesses. Please try again.");
     } finally {
       setLoading(false);
     }
