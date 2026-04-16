@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../api/authApi";
+import { registerUser, loginUser } from "../api/authApi";
+import { setToken } from "../auth/tokenStorage";
+import { setSelectedBusinessId } from "../state/businessStorage";
+import { listMyBusinesses } from "../api/businessApi";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -30,7 +33,20 @@ export default function Register() {
         role: "OWNER",
       });
 
-      navigate("/login");
+      const data = await loginUser({ email: form.email.trim(), password: form.password });
+      setToken(data.token);
+
+      const businesses = await listMyBusinesses();
+      if (!Array.isArray(businesses) || businesses.length === 0) {
+        navigate("/business-setup");
+        return;
+      }
+
+      if (businesses[0]?.id != null) {
+        setSelectedBusinessId(businesses[0].id);
+      }
+
+      navigate("/dashboard");
     } catch (e2) {
       console.error(e2);
       setError(
