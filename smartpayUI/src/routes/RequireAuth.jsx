@@ -10,14 +10,16 @@ import { clearSelectedBusinessId } from "../state/businessStorage";
 function isTokenExpired(token) {
   try {
     const payload = decodeJwtPayload(token);
-    if (!payload?.exp) return true;
+    // If we can't read "exp", don't block navigation here.
+    // Backend will still reject invalid/expired tokens on requests.
+    if (!payload?.exp) return false;
 
     // "exp" is the expiration timestamp in seconds
     const nowInSeconds = Date.now() / 1000;
     return payload.exp < nowInSeconds;
   } catch {
-    // If we can't decode the token, treat it as expired
-    return true;
+    // If we can't decode the token, don't block navigation here.
+    return false;
   }
 }
 
