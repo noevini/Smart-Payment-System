@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearToken, getToken } from "../../auth/tokenStorage";
+import { clearToken, getToken, decodeJwtPayload } from "../../auth/tokenStorage";
 import { listMyBusinesses, createBusiness } from "../../api/businessApi";
 import {
   clearSelectedBusinessId,
@@ -17,8 +17,7 @@ function getUserFromToken() {
   try {
     const token = getToken();
     if (!token) return null;
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload;
+    return decodeJwtPayload(token);
   } catch {
     return null;
   }

@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { getToken, clearToken } from "../auth/tokenStorage";
+import { getToken, clearToken, decodeJwtPayload } from "../auth/tokenStorage";
 import { clearSelectedBusinessId } from "../state/businessStorage";
 
 /**
@@ -9,9 +9,8 @@ import { clearSelectedBusinessId } from "../state/businessStorage";
  */
 function isTokenExpired(token) {
   try {
-    // JWT structure: header.payload.signature
-    // Payload is base64-encoded JSON
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const payload = decodeJwtPayload(token);
+    if (!payload?.exp) return true;
 
     // "exp" is the expiration timestamp in seconds
     const nowInSeconds = Date.now() / 1000;
