@@ -23,12 +23,9 @@ api.interceptors.request.use((config) => {
     config.headers["X-Business-Id"] = String(businessId);
   }
 
-  // Avoid conditional browser cache on GET requests.
-  // The login flow depends on fresh `/businesses` data to decide where to navigate.
+  // Avoid stale browser cache on GET requests without adding custom headers
+  // that can trigger CORS preflight issues on some deployments.
   if (config.method === "get" || !config.method) {
-    config.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-    config.headers.Pragma = "no-cache";
-    config.headers.Expires = "0";
     config.params = { ...config.params, _t: Date.now() };
   }
 
