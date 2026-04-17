@@ -1,0 +1,9 @@
+# Railway: set this service Root Directory to `payment-system-api` (monorepo).
+# If JAVA_TOOL_OPTIONS limits heap too much (e.g. -Xmx256m), Maven build can OOM — remove it or use >=512m.
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "./mvnw -DskipTests package"
+
+[deploy]
+startCommand = "java -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
