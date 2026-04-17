@@ -192,9 +192,7 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
         if (hasOpenAiApiKey(environment)) {
             return;
         }
-        if (StringUtils.hasText(environment.getProperty("spring.ai.model.chat"))) {
-            return;
-        }
+        // Always disable chat autoconfig when no key, even if application.properties defaulted to openai-sdk
         map.put("spring.ai.model.chat", "none");
     }
 
