@@ -30,7 +30,10 @@ public class ReportService {
 
         Map<PaymentStatus, Long> counts = new EnumMap<>(PaymentStatus.class);
         for (StatusCountProjection row : rows) {
-            counts.put(row.getStatus(), row.getCount());
+            try {
+                counts.put(PaymentStatus.valueOf(row.getStatus()), row.getCount());
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
         long paidCount = counts.getOrDefault(PaymentStatus.PAID, 0L);
