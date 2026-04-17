@@ -2,17 +2,13 @@ package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.*;
 import com.smartpaymentsystem.domain.PaymentStatus;
-import com.smartpaymentsystem.domain.User;
-import com.smartpaymentsystem.domain.UserRole;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.repository.StatusCountProjection;
-import com.smartpaymentsystem.security.CurrentUserService;
+import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,10 +21,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReportService {
     private final PaymentRepository paymentRepository;
-    private final CurrentUserService currentUserService;
+    private final BusinessAccessService businessAccessService;
 
-    public DashboardResponseDTO getDashboardSummary() {
-        Long businessId = resolveBusinessId();
+    public DashboardResponseDTO getDashboardSummary(Long businessId) {
+        businessAccessService.assertCanAccessBusiness(businessId);
 
         List<StatusCountProjection> rows = paymentRepository.countByStatus(businessId);
 
@@ -65,12 +61,12 @@ public class ReportService {
         );
     }
 
-    public MonthlyRevenueResponseDTO getMonthlyRevenue(int months) {
+    public MonthlyRevenueResponseDTO getMonthlyRevenue(Long businessId, int months) {
         if (months <= 0 || months > 24) {
             months = 6;
         }
 
-        Long businessId = resolveBusinessId();
+        businessAccessService.assertCanAccessBusiness(businessId);
         Instant from = Instant.now().minus(months, ChronoUnit.MONTHS);
 
         List<MonthlyRevenueDTO> points = paymentRepository
@@ -89,12 +85,12 @@ public class ReportService {
                 .build();
     }
 
-    public OverduePaymentResponseDTO getOverduePayments(int limit) {
+    public OverduePaymentResponseDTO getOverduePayments(Long businessId, int limit) {
         if (limit <= 0 || limit > 100) {
             limit = 20;
         }
 
-        Long businessId = resolveBusinessId();
+        businessAccessService.assertCanAccessBusiness(businessId);
         Instant now = Instant.now();
 
         var pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "dueDate"));
@@ -117,16 +113,4 @@ public class ReportService {
                 .build();
     }
 
-    private Long resolveBusinessId() {
-        User user = currentUserService.getCurrentUser();
-
-        if (user.getRole() == UserRole.STAFF) {
-            if (user.getBusiness() == null) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Staff user has no assigned business");
-            }
-            return user.getBusiness().getId();
-        }
-
-        return currentUserService.getCurrentBusinessId();
-    }
 }

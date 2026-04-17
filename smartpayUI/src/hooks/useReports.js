@@ -10,9 +10,9 @@ import { useBusinessSync } from "./useBusinessSync";
  * useReports — fetches all report data for the selected business.
  *
  * Runs three backend requests in parallel:
- * - /reports/dashboard
- * - /reports/overdue
- * - /reports/monthly-revenue
+ * - /businesses/{businessId}/reports/dashboard
+ * - /businesses/{businessId}/reports/overdue
+ * - /businesses/{businessId}/reports/monthly-revenue
  *
  * Usage:
  *   const { summary, overduePayments, monthlyRevenue, loading, error } = useReports();

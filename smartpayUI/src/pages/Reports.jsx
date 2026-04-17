@@ -12,9 +12,9 @@ import OverduePaymentsTable from "../components/reports/OverduePaymentsTable";
  * Reports page — shows financial reports for the selected business.
  *
  * Uses three backend endpoints:
- * - GET /reports/dashboard — summary counts and amounts
- * - GET /reports/overdue — list of overdue payments
- * - GET /reports/monthly-revenue — revenue breakdown by month
+ * - GET /businesses/{businessId}/reports/dashboard — summary counts and amounts
+ * - GET /businesses/{businessId}/reports/overdue — list of overdue payments
+ * - GET /businesses/{businessId}/reports/monthly-revenue — revenue breakdown by month
  *
  * Previously fetched all payments and calculated everything on the frontend.
  * Now delegates to dedicated backend report endpoints for accuracy.
@@ -110,7 +110,7 @@ export default function Reports() {
         <div className="text-sm text-red-600">{error}</div>
       ) : null}
 
-      {/* Summary cards — from /reports/dashboard */}
+      {/* Summary cards — from /businesses/{businessId}/reports/dashboard */}
       {summary ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <ReportCard title="Total revenue" value={`£${summary.paidAmount}`} />
@@ -150,7 +150,7 @@ export default function Reports() {
         </div>
       ) : null}
 
-      {/* Overdue payments table — from /reports/overdue */}
+      {/* Overdue payments table — from /businesses/{businessId}/reports/overdue */}
       {!loading && !error && businessId ? (
         <OverduePaymentsTable rows={overduePayments} />
       ) : null}
