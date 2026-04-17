@@ -23,7 +23,6 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         Map<String, Object> map = new LinkedHashMap<>();
         applyPostgresUrlFromRailway(environment, map);
-        disableOpenAiIfNoApiKey(environment, map);
         if (!map.isEmpty()) {
             environment.getPropertySources().addFirst(new MapPropertySource(SOURCE_NAME, map));
         }
@@ -192,7 +191,6 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
         if (hasOpenAiApiKey(environment)) {
             return;
         }
-        // Always disable chat autoconfig when no key, even if application.properties defaulted to openai-sdk
         map.put("spring.ai.model.chat", "none");
     }
 

@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -18,33 +17,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InsightService {
 
-    private final Environment environment;
+    @Value("${app.insights.ai-enabled:false}")
+    private boolean insightsAiEnabled;
+
     private final BusinessAccessService businessAccessService;
-    private final AnalyticsService analyticsService;   // IMPROVEMENT: reuse shared metric builder
+    private final AnalyticsService analyticsService;
     private final InsightPromptBuilder insightPromptBuilder;
     private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
-
-    /**
-     * If INSIGHTS_AI_ENABLED is unset: enable real AI when an API key is present (typical Railway setup).
-     * If INSIGHTS_AI_ENABLED is true/false: that value wins (use false to force fallback even with a key).
-     */
-    private boolean isInsightsAiEnabled() {
-        String explicit = environment.getProperty("INSIGHTS_AI_ENABLED");
-        if (StringUtils.hasText(explicit)) {
-            return Boolean.parseBoolean(explicit.trim());
-        }
-        return hasOpenAiApiKeyConfigured();
-    }
-
-    private boolean hasOpenAiApiKeyConfigured() {
-        return StringUtils.hasText(environment.getProperty("OPENAI_API_KEY"))
-                || StringUtils.hasText(environment.getProperty("spring.ai.openai-sdk.api-key"));
-    }
 
     public InsightResponseDTO generateSummary(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
-        if (!isInsightsAiEnabled()) {
+        if (!insightsAiEnabled) {
             return buildFallbackResponse();
         }
 
