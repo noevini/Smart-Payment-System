@@ -1,9 +1,11 @@
 # Railway: set this service Root Directory to `payment-system-api` (monorepo).
 #
 # Memory:
-# - Build OOM: MAVEN_OPTS below gives Maven more heap during `mvn package` (Railway build is tight).
-# - Runtime OOM: remove JAVA_TOOL_OPTIONS from Variables OR use e.g. -Xmx512m (256m is often too low for Spring).
-# - If the plan itself runs out of RAM, upgrade the Railway service or reduce load.
+# - Build OOM: MAVEN_OPTS below gives Maven more heap during `mvn package`.
+# - Runtime OOM: DELETE the variable JAVA_TOOL_OPTIONS in Railway if you had -Xmx256m (too small for Spring + JPA + AI).
+#   Or set JAVA_TOOL_OPTIONS to empty. Let -XX:MaxRAMPercentage use the container limit.
+# - If it still OOMs, upgrade RAM on the Railway service (512MB is tight for this stack).
+# - Optional: INSIGHTS_AI_ENABLED=false + SPRING_AI_MODEL_CHAT=none saves memory when you do not need AI.
 
 [build]
 builder = "NIXPACKS"
@@ -11,4 +13,5 @@ builder = "NIXPACKS"
 buildCommand = "MAVEN_OPTS='-Xmx768m -XX:+UseSerialGC' bash ./mvnw -DskipTests package"
 
 [deploy]
-startCommand = "java -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
+# Heap scales with container RAM; SerialGC is lighter on small instances
+startCommand = "java -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
