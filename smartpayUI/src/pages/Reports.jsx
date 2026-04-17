@@ -78,7 +78,13 @@ export default function Reports() {
         setMonthlyRevenue(revenueData?.points ?? []);
       } catch (e) {
         console.error(e);
-        setError("Failed to load reports.");
+        const backendMessage = e?.response?.data?.message;
+        const status = e?.response?.status;
+        setError(
+          backendMessage
+            ? `Failed to load reports (${status ?? "error"}): ${backendMessage}`
+            : "Failed to load reports.",
+        );
       } finally {
         setLoading(false);
       }

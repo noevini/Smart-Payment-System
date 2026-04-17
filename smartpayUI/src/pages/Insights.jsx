@@ -35,7 +35,13 @@ export default function Insights() {
         setData(result);
       } catch (err) {
         console.error(err);
-        setError("Failed to load insights.");
+        const backendMessage = err?.response?.data?.message;
+        const status = err?.response?.status;
+        setError(
+          backendMessage
+            ? `Failed to load insights (${status ?? "error"}): ${backendMessage}`
+            : "Failed to load insights.",
+        );
       } finally {
         setLoading(false);
       }
