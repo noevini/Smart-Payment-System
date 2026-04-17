@@ -1,10 +1,14 @@
 # Railway: set this service Root Directory to `payment-system-api` (monorepo).
-# If JAVA_TOOL_OPTIONS limits heap too much (e.g. -Xmx256m), Maven build can OOM — remove it or use >=512m.
+#
+# Memory:
+# - Build OOM: MAVEN_OPTS below gives Maven more heap during `mvn package` (Railway build is tight).
+# - Runtime OOM: remove JAVA_TOOL_OPTIONS from Variables OR use e.g. -Xmx512m (256m is often too low for Spring).
+# - If the plan itself runs out of RAM, upgrade the Railway service or reduce load.
 
 [build]
 builder = "NIXPACKS"
 # bash avoids "Permission denied" when mvnw is not +x in the image (Windows checkouts)
-buildCommand = "bash ./mvnw -DskipTests package"
+buildCommand = "MAVEN_OPTS='-Xmx768m -XX:+UseSerialGC' bash ./mvnw -DskipTests package"
 
 [deploy]
 startCommand = "java -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
