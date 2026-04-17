@@ -40,7 +40,9 @@ export default function Insights() {
         setError(
           backendMessage
             ? `Failed to load insights (${status ?? "error"}): ${backendMessage}`
-            : "Failed to load insights.",
+            : status
+              ? `Failed to load insights (${status}).`
+              : "Failed to load insights.",
         );
       } finally {
         setLoading(false);

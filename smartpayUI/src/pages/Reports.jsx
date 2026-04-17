@@ -83,7 +83,9 @@ export default function Reports() {
         setError(
           backendMessage
             ? `Failed to load reports (${status ?? "error"}): ${backendMessage}`
-            : "Failed to load reports.",
+            : status
+              ? `Failed to load reports (${status}).`
+              : "Failed to load reports.",
         );
       } finally {
         setLoading(false);
