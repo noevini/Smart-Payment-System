@@ -3,7 +3,8 @@
 
 [build]
 builder = "NIXPACKS"
-buildCommand = "./mvnw -DskipTests package"
+# bash avoids "Permission denied" when mvnw is not +x in the image (Windows checkouts)
+buildCommand = "bash ./mvnw -DskipTests package"
 
 [deploy]
 startCommand = "java -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
