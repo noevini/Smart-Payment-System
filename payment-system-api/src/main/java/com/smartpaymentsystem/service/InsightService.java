@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InsightService {
 
+    @Value("${app.insights.ai-enabled:false}")
+    private boolean insightsAiEnabled;
+
     private final BusinessAccessService businessAccessService;
     private final AnalyticsService analyticsService;   // IMPROVEMENT: reuse shared metric builder
     private final InsightPromptBuilder insightPromptBuilder;
@@ -23,6 +27,10 @@ public class InsightService {
 
     public InsightResponseDTO generateSummary(Long businessId) {
         businessAccessService.assertCanAccessBusiness(businessId);
+
+        if (!insightsAiEnabled) {
+            return buildFallbackResponse();
+        }
 
         InsightMetricsDTO metrics = analyticsService.buildMetrics(businessId);
         String prompt = insightPromptBuilder.buildSummaryPrompt(metrics);
@@ -49,7 +57,7 @@ public class InsightService {
             return response;
 
         } catch (Exception exception) {
-            log.error("AI insight generation failed for businessId={}: {}", businessId, exception.getMessage());
+            log.warn("AI insight generation failed for businessId={}: {}", businessId, exception.getMessage());
             return buildFallbackResponse();
         }
     }
