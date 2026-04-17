@@ -73,7 +73,7 @@ public class ReportService {
                 .getMonthlyRevenue(businessId, from)
                 .stream()
                 .map(r -> MonthlyRevenueDTO.builder()
-                        .monthStart(r.getMonthStart())
+                        .monthStart(r.getMonthStart() != null ? r.getMonthStart().toInstant() : null)
                         .revenue(r.getRevenue())
                         .count(r.getCount())
                         .build()

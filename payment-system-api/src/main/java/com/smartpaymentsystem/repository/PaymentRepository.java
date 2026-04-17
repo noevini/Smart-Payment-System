@@ -54,18 +54,18 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     BigDecimal sumAmountByBusinessIdAndStatus(@Param("businessId") Long businessId,
                                               @Param("status") PaymentStatus status);
 
-    @Query("""
-        select
-            function('date_trunc', 'month', p.paidAt) as monthStart,
-            coalesce(sum(p.amount), 0) as revenue,
-            count(p) as count
-        from Payment p
-        where p.business.id = :businessId
-          and p.status = com.smartpaymentsystem.domain.PaymentStatus.PAID
-          and p.paidAt >= :from
-        group by function('date_trunc', 'month', p.paidAt)
-        order by function('date_trunc', 'month', p.paidAt) asc
-    """)
+    @Query(value = """
+        SELECT
+            date_trunc('month', paid_at)  AS month_start,
+            COALESCE(SUM(amount), 0)      AS revenue,
+            COUNT(*)                      AS count
+        FROM payments
+        WHERE business_id = :businessId
+          AND status      = 'PAID'
+          AND paid_at    >= :from
+        GROUP BY date_trunc('month', paid_at)
+        ORDER BY date_trunc('month', paid_at) ASC
+    """, nativeQuery = true)
     List<MonthlyRevenueProjection> getMonthlyRevenue(@Param("businessId") Long businessId,
                                                      @Param("from") Instant from);
 }
