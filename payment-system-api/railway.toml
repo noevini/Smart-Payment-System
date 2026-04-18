@@ -16,4 +16,4 @@ buildCommand = "MAVEN_OPTS='-Xmx768m -XX:+UseSerialGC' bash ./mvnw -DskipTests p
 # Explicit bounds so heap + metaspace + threads + code cache fit inside 512 MB.
 # MaxRAMPercentage was removed — it only limits heap, not total JVM memory,
 # which caused OOM on Railway's 512 MB containers.
-startCommand = "java -Xmx220m -Xms32m -XX:MaxMetaspaceSize=110m -XX:ReservedCodeCacheSize=28m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
+startCommand = "java -Xmx180m -Xms32m -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=32m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -jar target/payment-system-api-0.0.1-SNAPSHOT.jar"
