@@ -36,12 +36,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             Pageable pageable
     );
 
-    @Query("""
-        select p.status as status, count(p) as count
-        from Payment p
-        where p.business.id = :businessId
-        group by p.status
-    """)
+    @Query(value = """
+        SELECT status, COUNT(*) AS count
+        FROM payments
+        WHERE business_id = :businessId
+        GROUP BY status
+    """, nativeQuery = true)
     List<StatusCountProjection> countByStatus(@Param("businessId") Long businessId);
 
     @Query("""
