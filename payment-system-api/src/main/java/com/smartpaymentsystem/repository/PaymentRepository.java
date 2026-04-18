@@ -23,10 +23,16 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByStatusAndDueDateBefore(PaymentStatus status, Instant before);
 
-    Page<Payment> findByBusiness_IdAndStatusNotAndDueDateBefore(
-            Long businessId,
-            PaymentStatus status,
-            Instant now,
+    @Query("""
+        SELECT p FROM Payment p
+        WHERE p.business.id = :businessId
+          AND p.status <> :status
+          AND p.dueDate < :now
+    """)
+    Page<Payment> findOverduePayments(
+            @Param("businessId") Long businessId,
+            @Param("status") PaymentStatus status,
+            @Param("now") Instant now,
             Pageable pageable
     );
 

@@ -99,7 +99,7 @@ public class ReportService {
         var pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "dueDate"));
 
         List<OverduePaymentDTO> items = paymentRepository
-                .findByBusiness_IdAndStatusNotAndDueDateBefore(businessId, PaymentStatus.PAID, now, pageable)
+                .findOverduePayments(businessId, PaymentStatus.PAID, now, pageable)
                 .getContent()
                 .stream()
                 .map(p -> OverduePaymentDTO.builder()
