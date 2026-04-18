@@ -1,9 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { getToken, decodeJwtPayload } from "../../auth/tokenStorage";
 
-/**
- * Navigation links configuration.
- * Add new pages here — no need to touch AppLayout.
- */
 const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/payments", label: "Payments" },
@@ -16,11 +13,24 @@ const NAV_LINKS = [
   { to: "/predictions", label: "Predictions" },
 ];
 
-/**
- * Sidebar component — handles all navigation links.
- * Extracted from AppLayout to keep layout and navigation concerns separate.
- */
+const OWNER_ONLY_LINKS = [
+  { to: "/staff", label: "Staff" },
+];
+
+function getUserRole() {
+  try {
+    const token = getToken();
+    if (!token) return null;
+    return decodeJwtPayload(token)?.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Sidebar() {
+  const role = getUserRole();
+  const isOwner = role === "OWNER";
+
   return (
     <aside className="w-64 bg-slate-900 text-white p-4 space-y-2 flex flex-col">
       {/* Branding */}
@@ -42,6 +52,27 @@ export default function Sidebar() {
             {link.label}
           </NavLink>
         ))}
+
+        {isOwner ? (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Management
+              </span>
+            </div>
+            {OWNER_ONLY_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </>
+        ) : null}
       </nav>
     </aside>
   );

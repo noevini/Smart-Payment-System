@@ -14,6 +14,7 @@ import Insights from "../pages/Insights";
 import Analytics from "../pages/Analytics";
 import Predictions from "../pages/Predictions";
 import Transactions from "../pages/Transactions";
+import Staff from "../pages/Staff";
 
 export const routes = [
   { path: "/login", element: <Login /> },
@@ -47,6 +48,7 @@ export const routes = [
       { path: "insights", element: <Insights /> },
       { path: "analytics", element: <Analytics /> },
       { path: "predictions", element: <Predictions /> },
+      { path: "staff", element: <Staff /> },
     ],
   },
 ];

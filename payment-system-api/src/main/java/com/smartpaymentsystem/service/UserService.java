@@ -56,4 +56,14 @@ public class UserService {
         User user = getById(userId);
         userRepository.delete(user);
     }
+
+    public List<User> listStaffByBusiness(Long businessId) {
+        return userRepository.findByBusiness_IdAndRole(businessId, UserRole.STAFF);
+    }
+
+    public void deleteStaffUser(Long businessId, Long userId) {
+        User user = userRepository.findByIdAndBusiness_IdAndRole(userId, businessId, UserRole.STAFF)
+                .orElseThrow(() -> new ResourceNotFoundException("Staff member not found"));
+        userRepository.delete(user);
+    }
 }
