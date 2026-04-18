@@ -55,28 +55,28 @@ API Documentation (Swagger):
 https://smart-payment-system-production.up.railway.app/swagger-ui.html
 
 ## Project Structure
-Smart-Payment-System/
-├── payment-system-api/          # Spring Boot backend
-│   ├── src/main/java/com/smartpaymentsystem/
-│   │   ├── api/                 # Controllers, DTOs, Exception handlers
-│   │   ├── config/              # Security, JWT, CORS configuration
-│   │   ├── domain/              # Domain entities and enums
-│   │   ├── repository/          # Spring Data JPA repositories
-│   │   ├── security/            # JWT filter, Business access service
-│   │   └── service/             # Business logic services
-│   ├── src/main/resources/
-│   │   └── db/migration/        # Flyway migration scripts
-│   ├── src/test/                # JUnit 5 unit tests (92 tests)
-│   └── pom.xml
-│
-└── smartpayUI/                  # React frontend
-├── src/
-│   ├── api/                 # API client functions
-│   ├── components/          # Reusable UI components
-│   ├── hooks/               # Custom React hooks
-│   ├── pages/               # Page components
-│   └── auth/                # Authentication utilities
-└── package.json
+
+    Smart-Payment-System/
+    ├── payment-system-api/          # Spring Boot backend
+    │   ├── src/main/java/
+    │   │   ├── api/                 # Controllers and DTOs
+    │   │   ├── config/              # Security and JWT config
+    │   │   ├── domain/              # Entities and enums
+    │   │   ├── repository/          # JPA repositories
+    │   │   ├── security/            # JWT filter and access service
+    │   │   └── service/             # Business logic
+    │   ├── src/main/resources/
+    │   │   └── db/migration/        # Flyway scripts
+    │   ├── src/test/                # JUnit tests (92 tests)
+    │   └── pom.xml
+    └── smartpayUI/                  # React frontend
+        ├── src/
+        │   ├── api/                 # API client functions
+        │   ├── components/          # UI components
+        │   ├── hooks/               # Custom hooks
+        │   ├── pages/               # Page components
+        │   └── auth/                # Auth utilities
+        └── package.json
 
 ## Getting Started
 
