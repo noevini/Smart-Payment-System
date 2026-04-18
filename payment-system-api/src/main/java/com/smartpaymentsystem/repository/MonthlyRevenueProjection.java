@@ -1,10 +1,10 @@
 package com.smartpaymentsystem.repository;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public interface MonthlyRevenueProjection {
-    Timestamp getMonthStart();
+    LocalDateTime getMonthStart();
     BigDecimal getRevenue();
     long getCount();
 }
