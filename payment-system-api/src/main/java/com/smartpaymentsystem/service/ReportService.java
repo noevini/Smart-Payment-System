@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.ZonedDateTime;
+import java.time.ZoneOffset;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class ReportService {
         }
 
         businessAccessService.assertCanAccessBusiness(businessId);
-        Instant from = Instant.now().minus(months, ChronoUnit.MONTHS);
+        Instant from = ZonedDateTime.now(ZoneOffset.UTC).minusMonths(months).toInstant();
 
         List<MonthlyRevenueDTO> points = paymentRepository
                 .getMonthlyRevenue(businessId, from)
