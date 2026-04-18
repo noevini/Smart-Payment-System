@@ -26,7 +26,6 @@ public class TransactionRequestDTO {
     @NotBlank
     private String currency;
 
-    @NotBlank
     private String description;
 
     @NotNull
