@@ -90,6 +90,7 @@ export default function Payments() {
             <thead className="table-head">
               <tr>
                 <th className="table-th">ID</th>
+                <th className="table-th">Customer</th>
                 <th className="table-th">Direction</th>
                 <th className="table-th">Amount</th>
                 <th className="table-th">Status</th>
@@ -103,6 +104,13 @@ export default function Payments() {
               {filtered.map((p) => (
                 <tr key={p.id} className="table-row">
                   <td className="table-td font-mono">{p.id}</td>
+                  <td className="table-td">
+                    {p.customerName ? (
+                      <span className="text-slate-800 font-medium">{p.customerName}</span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
+                  </td>
                   <td className="table-td">{p.direction ?? "—"}</td>
                   <td className="table-td">
                     {p.currency} {p.amount}
@@ -196,7 +204,7 @@ export default function Payments() {
 
               {!loading && filtered.length === 0 ? (
                 <tr className="table-row">
-                  <td className="table-td text-slate-500" colSpan={7}>
+                  <td className="table-td text-slate-500" colSpan={8}>
                     No payments found.
                   </td>
                 </tr>

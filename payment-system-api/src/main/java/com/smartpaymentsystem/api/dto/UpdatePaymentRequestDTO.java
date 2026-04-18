@@ -19,4 +19,5 @@ public class UpdatePaymentRequestDTO {
     private String description;
     private Instant dueDate;
     private PaymentStatus status;
+    private Long customerId;
 }

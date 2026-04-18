@@ -10,6 +10,10 @@ public class PaymentMapper {
 
         response.setId(payment.getId());
         response.setBusinessId(payment.getBusiness().getId());
+        if (payment.getCustomer() != null) {
+            response.setCustomerId(payment.getCustomer().getId());
+            response.setCustomerName(payment.getCustomer().getName());
+        }
         response.setDirection(payment.getDirection());
         response.setStatus(payment.getStatus());
         response.setAmount(payment.getAmount());

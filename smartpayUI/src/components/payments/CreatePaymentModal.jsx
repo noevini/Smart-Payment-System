@@ -26,7 +26,7 @@ export default function CreatePaymentModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Load customers when opening for create
+  // Load customers when opening modal (both create and edit)
   useEffect(() => {
     let cancelled = false;
 
@@ -46,7 +46,7 @@ export default function CreatePaymentModal({
       }
     }
 
-    if (open && !isEdit) loadCustomers();
+    if (open) loadCustomers();
 
     return () => {
       cancelled = true;
@@ -59,7 +59,7 @@ export default function CreatePaymentModal({
 
     if (isEdit && payment) {
       setForm({
-        customerId: "",
+        customerId: payment.customerId ? String(payment.customerId) : "",
         direction: payment.direction ?? "RECEIVABLE",
         amount: payment.amount != null ? String(payment.amount) : "",
         currency: payment.currency ?? "",
@@ -91,6 +91,7 @@ export default function CreatePaymentModal({
       return setError("Please select a customer.");
     }
 
+
     const amountNum = Number(form.amount);
     if (!Number.isFinite(amountNum) || amountNum <= 0) {
       return setError("Amount must be greater than 0.");
@@ -106,6 +107,7 @@ export default function CreatePaymentModal({
           currency: form.currency?.trim() || null,
           dueDate: new Date(form.dueDate).toISOString(),
           description: form.description?.trim() || null,
+          customerId: form.customerId ? Number(form.customerId) : null,
         }
       : {
           direction: form.direction,
@@ -113,6 +115,7 @@ export default function CreatePaymentModal({
           currency: form.currency?.trim() || null,
           dueDate: new Date(form.dueDate).toISOString(),
           description: form.description?.trim() || null,
+          customerId: form.customerId ? Number(form.customerId) : null,
         };
 
     try {
@@ -163,8 +166,7 @@ export default function CreatePaymentModal({
         </div>
 
         <form onSubmit={onSubmit} className="p-6 space-y-5">
-          {!isEdit ? (
-            <div className="space-y-2">
+          <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">
                 Customer
               </label>
@@ -189,7 +191,6 @@ export default function CreatePaymentModal({
                 <div className="text-xs text-red-600">{customersError}</div>
               ) : null}
             </div>
-          ) : null}
 
           {!isEdit ? (
             <div className="space-y-2">

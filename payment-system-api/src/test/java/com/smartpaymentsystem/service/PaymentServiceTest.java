@@ -28,6 +28,7 @@ class PaymentServiceTest {
     @Mock private PaymentRepository paymentRepository;
     @Mock private BusinessAccessService businessAccessService;
     @Mock private BusinessRepository businessRepository;
+    @Mock private com.smartpaymentsystem.repository.CustomerRepository customerRepository;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -250,7 +251,7 @@ class PaymentServiceTest {
         Payment result = paymentService.createPayment(
                 1L, PaymentDirection.RECEIVABLE,
                 BigDecimal.valueOf(250), "GBP",
-                "Invoice", Instant.now().plusSeconds(86400)
+                "Invoice", Instant.now().plusSeconds(86400), null
         );
 
         assertEquals(PaymentStatus.PENDING, result.getStatus());
@@ -266,7 +267,7 @@ class PaymentServiceTest {
 
         Payment result = paymentService.createPayment(
                 1L, PaymentDirection.RECEIVABLE,
-                BigDecimal.valueOf(100), null, "desc", Instant.now().plusSeconds(3600)
+                BigDecimal.valueOf(100), null, "desc", Instant.now().plusSeconds(3600), null
         );
 
         assertEquals("GBP", result.getCurrency());
@@ -279,7 +280,7 @@ class PaymentServiceTest {
 
         Payment result = paymentService.createPayment(
                 1L, PaymentDirection.RECEIVABLE,
-                BigDecimal.valueOf(100), "   ", "desc", Instant.now().plusSeconds(3600)
+                BigDecimal.valueOf(100), "   ", "desc", Instant.now().plusSeconds(3600), null
         );
 
         assertEquals("GBP", result.getCurrency());
@@ -291,7 +292,7 @@ class PaymentServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () ->
                 paymentService.createPayment(99L, PaymentDirection.RECEIVABLE,
-                        BigDecimal.valueOf(100), "GBP", "desc", Instant.now().plusSeconds(3600))
+                        BigDecimal.valueOf(100), "GBP", "desc", Instant.now().plusSeconds(3600), null)
         );
         verify(paymentRepository, never()).save(any());
     }
@@ -303,7 +304,7 @@ class PaymentServiceTest {
 
         Payment result = paymentService.createPayment(
                 1L, PaymentDirection.PAYABLE,
-                BigDecimal.valueOf(50), "eur", "expense", Instant.now().plusSeconds(3600)
+                BigDecimal.valueOf(50), "eur", "expense", Instant.now().plusSeconds(3600), null
         );
 
         assertEquals("EUR", result.getCurrency());

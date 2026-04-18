@@ -44,7 +44,8 @@ public class PaymentController {
                 request.getAmount(),
                 request.getCurrency(),
                 request.getDescription(),
-                request.getDueDate()
+                request.getDueDate(),
+                request.getCustomerId()
         );
         return PaymentMapper.toResponse(payment);
     }

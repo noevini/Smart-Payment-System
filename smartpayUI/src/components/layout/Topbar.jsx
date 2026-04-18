@@ -48,6 +48,7 @@ export default function Topbar() {
   // User info decoded from JWT
   const userPayload = getUserFromToken();
   const userRole = userPayload?.role ?? "USER";
+  const userName = userPayload?.name ?? null;
 
   /**
    * Loads the list of businesses and sets the selected one.
@@ -162,10 +163,17 @@ export default function Topbar() {
       {/* ── Main topbar ── */}
       <header className="topbar-shell">
         <div className="flex items-center gap-3">
-          {/* User role badge */}
-          <span className="text-sm font-medium text-slate-700 capitalize">
-            {userRole.toLowerCase()}
-          </span>
+          {/* User info */}
+          <div className="flex flex-col leading-tight">
+            {userName && (
+              <span className="text-sm font-semibold text-slate-800">
+                {userName}
+              </span>
+            )}
+            <span className="text-xs text-slate-500 capitalize">
+              {userRole.toLowerCase()}
+            </span>
+          </div>
 
           {/* Business selector or loading state */}
           {loading ? (

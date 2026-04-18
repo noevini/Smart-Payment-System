@@ -3,11 +3,9 @@ package com.smartpaymentsystem.service;
 import com.smartpaymentsystem.api.dto.UpdatePaymentRequestDTO;
 import com.smartpaymentsystem.api.exceptionhandler.ConflictException;
 import com.smartpaymentsystem.api.exceptionhandler.ResourceNotFoundException;
-import com.smartpaymentsystem.domain.Business;
-import com.smartpaymentsystem.domain.Payment;
-import com.smartpaymentsystem.domain.PaymentDirection;
-import com.smartpaymentsystem.domain.PaymentStatus;
+import com.smartpaymentsystem.domain.*;
 import com.smartpaymentsystem.repository.BusinessRepository;
+import com.smartpaymentsystem.repository.CustomerRepository;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
@@ -24,6 +22,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BusinessAccessService businessAccessService;
     private final BusinessRepository businessRepository;
+    private final CustomerRepository customerRepository;
 
     @Transactional(readOnly = true)
     public List<Payment> listPayments(Long businessId) {
@@ -40,7 +39,8 @@ public class PaymentService {
 
     @Transactional
     public Payment createPayment(Long businessId, PaymentDirection direction, BigDecimal amount,
-                                 String currency, String description, Instant dueDate) {
+                                 String currency, String description, Instant dueDate,
+                                 Long customerId) {
         businessAccessService.assertCanAccessBusiness(businessId);
 
         Business business = businessRepository.findById(businessId)
@@ -58,6 +58,12 @@ public class PaymentService {
         payment.setCurrency(normalisedCurrency);
         payment.setDescription(description != null ? description.trim() : null);
         payment.setDueDate(dueDate);
+
+        if (customerId != null) {
+            Customer customer = customerRepository.findByIdAndBusinessId(customerId, businessId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+            payment.setCustomer(customer);
+        }
 
         return paymentRepository.save(payment);
     }
@@ -81,6 +87,11 @@ public class PaymentService {
         }
         if (request.getDueDate() != null) {
             payment.setDueDate(request.getDueDate());
+        }
+        if (request.getCustomerId() != null) {
+            Customer customer = customerRepository.findByIdAndBusinessId(request.getCustomerId(), businessId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+            payment.setCustomer(customer);
         }
 
         PaymentStatus newStatus = request.getStatus();

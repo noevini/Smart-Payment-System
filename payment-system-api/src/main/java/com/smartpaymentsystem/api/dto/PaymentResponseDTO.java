@@ -14,6 +14,8 @@ public class PaymentResponseDTO {
 
     private Long id;
     private Long businessId;
+    private Long customerId;
+    private String customerName;
     private PaymentDirection direction;
     private PaymentStatus status;
     private BigDecimal amount;

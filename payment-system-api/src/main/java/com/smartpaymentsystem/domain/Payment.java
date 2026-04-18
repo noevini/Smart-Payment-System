@@ -40,6 +40,10 @@ public class Payment {
     @Column(name = "due_date", nullable = false)
     private Instant dueDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     @Column(name = "paid_at")
     private Instant paidAt;
 

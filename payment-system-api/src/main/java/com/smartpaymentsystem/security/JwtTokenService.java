@@ -32,6 +32,7 @@ public class JwtTokenService {
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)))
                 .claim("role", user.getRole().name())
+                .claim("name", user.getName())
                 .signWith(signingKey());
 
         if (user.getBusiness() != null) {

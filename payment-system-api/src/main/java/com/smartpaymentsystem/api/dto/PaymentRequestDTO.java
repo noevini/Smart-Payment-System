@@ -22,6 +22,7 @@ public class PaymentRequestDTO {
 
     private String currency;
     private String description;
+    private Long customerId;
 
     @NotNull
     private Instant dueDate;
