@@ -49,6 +49,7 @@ export default function Topbar() {
   const userPayload = getUserFromToken();
   const userRole = userPayload?.role ?? "USER";
   const userName = userPayload?.name ?? null;
+  const isOwner = userRole === "OWNER";
 
   /**
    * Loads the list of businesses and sets the selected one.
@@ -178,8 +179,7 @@ export default function Topbar() {
           {/* Business selector or loading state */}
           {loading ? (
             <span className="text-sm text-slate-500">Loading...</span>
-          ) : businesses.length === 0 ? (
-            // No businesses yet — show create button
+          ) : businesses.length === 0 && isOwner ? (
             <button
               onClick={() => setShowCreateModal(true)}
               className="btn-primary"
@@ -187,7 +187,6 @@ export default function Topbar() {
               Create business
             </button>
           ) : (
-            // Business dropdown
             <div className="flex items-center gap-2">
               <select
                 value={selectedId}
@@ -201,14 +200,15 @@ export default function Topbar() {
                 ))}
               </select>
 
-              {/* Add another business */}
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn-secondary"
-                title="Add business"
-              >
-                +
-              </button>
+              {isOwner ? (
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn-secondary"
+                  title="Add business"
+                >
+                  +
+                </button>
+              ) : null}
             </div>
           )}
         </div>
