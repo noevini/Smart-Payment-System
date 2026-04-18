@@ -7,6 +7,8 @@ import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.NotificationRepository;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,11 @@ public class NotificationScheduler {
     private static final String RELATED_ENTITY_TYPE_PAYMENT = "PAYMENT";
     private final PaymentRepository paymentRepository;
     private final NotificationRepository notificationRepository;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void runOnStartup() {
+        generateOverduePaymentNotifications();
+    }
 
     @Scheduled(cron = "0 0 8 * * *")
     @Transactional
