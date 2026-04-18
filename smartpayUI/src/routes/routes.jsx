@@ -13,6 +13,7 @@ import BusinessSetup from "../pages/BusinessSetup";
 import Insights from "../pages/Insights";
 import Analytics from "../pages/Analytics";
 import Predictions from "../pages/Predictions";
+import Transactions from "../pages/Transactions";
 
 export const routes = [
   { path: "/login", element: <Login /> },
@@ -38,6 +39,7 @@ export const routes = [
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "payments", element: <Payments /> },
+      { path: "transactions", element: <Transactions /> },
       { path: "customers", element: <Customers /> },
       { path: "business-setup", element: <BusinessSetup /> },
       { path: "notifications", element: <Notifications /> },
