@@ -130,7 +130,7 @@ export default function CreateStaffModal({ open, onClose, onCreated }) {
                 setForm((f) => ({ ...f, password: e.target.value }))
               }
               className="input-field"
-              placeholder="Temporary password"
+              placeholder="Min. 6 characters"
               required
               minLength={6}
             />

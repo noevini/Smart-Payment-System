@@ -42,7 +42,7 @@ public class User {
     private UserRole role;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "business_id")
     private Business business;
 
