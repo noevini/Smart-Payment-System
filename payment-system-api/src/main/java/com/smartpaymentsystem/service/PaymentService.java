@@ -53,7 +53,9 @@ public class PaymentService {
         Payment payment = new Payment();
         payment.setBusiness(business);
         payment.setDirection(direction);
-        payment.setStatus(PaymentStatus.PENDING);
+        payment.setStatus(dueDate != null && dueDate.isBefore(Instant.now())
+                ? PaymentStatus.OVERDUE
+                : PaymentStatus.PENDING);
         payment.setAmount(amount);
         payment.setCurrency(normalisedCurrency);
         payment.setDescription(description != null ? description.trim() : null);
@@ -87,6 +89,11 @@ public class PaymentService {
         }
         if (request.getDueDate() != null) {
             payment.setDueDate(request.getDueDate());
+            if (payment.getStatus() == PaymentStatus.PENDING || payment.getStatus() == PaymentStatus.OVERDUE) {
+                payment.setStatus(request.getDueDate().isBefore(Instant.now())
+                        ? PaymentStatus.OVERDUE
+                        : PaymentStatus.PENDING);
+            }
         }
         if (request.getCustomerId() != null) {
             Customer customer = customerRepository.findByIdAndBusinessId(request.getCustomerId(), businessId)
