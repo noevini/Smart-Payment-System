@@ -12,7 +12,7 @@ public class CustomerMapper {
         Customer customer = new Customer();
 
         customer.setName(requestDTO.getName());
-        customer.setEmail(requestDTO.getEmail().trim().toLowerCase());
+        customer.setEmail(requestDTO.getEmail() != null ? requestDTO.getEmail().trim().toLowerCase() : null);
         customer.setPhone(requestDTO.getPhone());
         customer.setNotes(requestDTO.getNotes());
 
@@ -24,7 +24,7 @@ public class CustomerMapper {
 
         customerResponseDTO.setId(customer.getId());
         customerResponseDTO.setName(customer.getName());
-        customerResponseDTO.setEmail(customer.getEmail().trim().toLowerCase());
+        customerResponseDTO.setEmail(customer.getEmail() != null ? customer.getEmail().trim().toLowerCase() : null);
         customerResponseDTO.setPhone(customer.getPhone());
         customerResponseDTO.setNotes(customer.getNotes());
         customerResponseDTO.setCreatedAt(customer.getCreatedAt());
