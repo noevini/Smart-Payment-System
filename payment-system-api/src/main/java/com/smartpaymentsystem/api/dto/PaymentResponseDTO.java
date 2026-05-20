@@ -1,6 +1,5 @@
 package com.smartpaymentsystem.api.dto;
 
-import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +15,6 @@ public class PaymentResponseDTO {
     private Long businessId;
     private Long customerId;
     private String customerName;
-    private PaymentDirection direction;
     private PaymentStatus status;
     private BigDecimal amount;
     private String currency;

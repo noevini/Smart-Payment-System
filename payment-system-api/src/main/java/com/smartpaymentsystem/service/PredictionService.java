@@ -2,7 +2,6 @@ package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.PredictionSummaryDTO;
 import com.smartpaymentsystem.domain.Payment;
-import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
@@ -33,10 +32,6 @@ public class PredictionService {
         Instant now = Instant.now();
 
         for (Payment payment : payments) {
-
-            if (payment.getDirection() != PaymentDirection.RECEIVABLE) {
-                continue;
-            }
 
             if (payment.getStatus() != PaymentStatus.PENDING) {
                 continue;

@@ -91,7 +91,6 @@ export default function Payments() {
               <tr>
                 <th className="table-th">ID</th>
                 <th className="table-th">Customer</th>
-                <th className="table-th">Direction</th>
                 <th className="table-th">Amount</th>
                 <th className="table-th">Status</th>
                 <th className="table-th">Due date</th>
@@ -111,7 +110,6 @@ export default function Payments() {
                       <span className="text-slate-400">—</span>
                     )}
                   </td>
-                  <td className="table-td">{p.direction ?? "—"}</td>
                   <td className="table-td">
                     {p.currency} {p.amount}
                   </td>

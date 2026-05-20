@@ -1,7 +1,9 @@
 package com.smartpaymentsystem.service;
 
 import com.smartpaymentsystem.api.dto.InsightMetricsDTO;
-import com.smartpaymentsystem.domain.*;
+import com.smartpaymentsystem.domain.Business;
+import com.smartpaymentsystem.domain.Payment;
+import com.smartpaymentsystem.domain.PaymentStatus;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +38,9 @@ class AnalyticsServiceTest {
         business.setName("Test Business");
     }
 
-    private Payment makePayment(PaymentDirection direction, PaymentStatus status, double amount) {
+    private Payment makePayment(PaymentStatus status, double amount) {
         Payment p = new Payment();
         p.setBusiness(business);
-        p.setDirection(direction);
         p.setStatus(status);
         p.setAmount(BigDecimal.valueOf(amount));
         p.setCurrency("GBP");
@@ -65,25 +66,13 @@ class AnalyticsServiceTest {
     }
 
     @Test
-    void buildMetrics_onlyPayablePayments_areIgnored() {
-        Payment payable = makePayment(PaymentDirection.PAYABLE, PaymentStatus.PAID, 500);
-        when(paymentRepository.findByBusiness_Id(1L)).thenReturn(List.of(payable));
-
-        InsightMetricsDTO result = analyticsService.buildMetrics(1L);
-
-        assertEquals(0L, result.getTotalPayments());
-        assertEquals(BigDecimal.ZERO, result.getTotalRevenue());
-    }
-
-    @Test
     void buildMetrics_mixedPayments_computesCorrectly() {
-        Payment paid = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.PAID, 200);
-        Payment pending = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.PENDING, 100);
-        Payment overdue = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.OVERDUE, 50);
-        Payment payable = makePayment(PaymentDirection.PAYABLE, PaymentStatus.PAID, 999);
+        Payment paid = makePayment(PaymentStatus.PAID, 200);
+        Payment pending = makePayment(PaymentStatus.PENDING, 100);
+        Payment overdue = makePayment(PaymentStatus.OVERDUE, 50);
 
         when(paymentRepository.findByBusiness_Id(1L))
-                .thenReturn(List.of(paid, pending, overdue, payable));
+                .thenReturn(List.of(paid, pending, overdue));
 
         InsightMetricsDTO result = analyticsService.buildMetrics(1L);
 
@@ -98,8 +87,8 @@ class AnalyticsServiceTest {
 
     @Test
     void buildMetrics_multiplePaidPayments_sumsTotalRevenue() {
-        Payment p1 = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.PAID, 300);
-        Payment p2 = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.PAID, 150);
+        Payment p1 = makePayment(PaymentStatus.PAID, 300);
+        Payment p2 = makePayment(PaymentStatus.PAID, 150);
         when(paymentRepository.findByBusiness_Id(1L)).thenReturn(List.of(p1, p2));
 
         InsightMetricsDTO result = analyticsService.buildMetrics(1L);
@@ -110,7 +99,7 @@ class AnalyticsServiceTest {
 
     @Test
     void buildMetrics_canceledReceivable_doesNotCountInAnyTotal() {
-        Payment canceled = makePayment(PaymentDirection.RECEIVABLE, PaymentStatus.CANCELED, 100);
+        Payment canceled = makePayment(PaymentStatus.CANCELED, 100);
         when(paymentRepository.findByBusiness_Id(1L)).thenReturn(List.of(canceled));
 
         InsightMetricsDTO result = analyticsService.buildMetrics(1L);

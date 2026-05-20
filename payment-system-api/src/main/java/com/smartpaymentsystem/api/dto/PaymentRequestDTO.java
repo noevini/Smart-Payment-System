@@ -1,6 +1,5 @@
 package com.smartpaymentsystem.api.dto;
 
-import com.smartpaymentsystem.domain.PaymentDirection;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -12,9 +11,6 @@ import java.time.Instant;
 @Getter
 @Setter
 public class PaymentRequestDTO {
-
-    @NotNull
-    private PaymentDirection direction;
 
     @NotNull
     @DecimalMin("0.01")

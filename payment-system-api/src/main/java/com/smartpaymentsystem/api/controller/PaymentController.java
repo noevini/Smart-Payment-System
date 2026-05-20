@@ -40,7 +40,6 @@ public class PaymentController {
                                             @Valid @RequestBody PaymentRequestDTO request) {
         Payment payment = paymentService.createPayment(
                 businessId,
-                request.getDirection(),
                 request.getAmount(),
                 request.getCurrency(),
                 request.getDescription(),

@@ -3,7 +3,6 @@ package com.smartpaymentsystem.service;
 import com.smartpaymentsystem.api.dto.AnalyticsSummaryDTO;
 import com.smartpaymentsystem.api.dto.InsightMetricsDTO;
 import com.smartpaymentsystem.domain.Payment;
-import com.smartpaymentsystem.domain.PaymentDirection;
 import com.smartpaymentsystem.repository.PaymentRepository;
 import com.smartpaymentsystem.security.BusinessAccessService;
 import lombok.AllArgsConstructor;
@@ -50,8 +49,6 @@ public class AnalyticsService {
         BigDecimal totalOverdueAmount = BigDecimal.ZERO;
 
         for (Payment payment : payments) {
-            if (payment.getDirection() != PaymentDirection.RECEIVABLE) continue;
-
             totalPayments++;
 
             switch (payment.getStatus()) {

@@ -22,10 +22,6 @@ public class Payment {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentDirection direction;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     @Column(precision = 19, scale = 2, nullable = false)

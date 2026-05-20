@@ -16,7 +16,6 @@ export default function CreatePaymentModal({
 
   const [form, setForm] = useState({
     customerId: "",
-    direction: "RECEIVABLE",
     amount: "",
     currency: "",
     dueDate: "",
@@ -60,7 +59,6 @@ export default function CreatePaymentModal({
     if (isEdit && payment) {
       setForm({
         customerId: payment.customerId ? String(payment.customerId) : "",
-        direction: payment.direction ?? "RECEIVABLE",
         amount: payment.amount != null ? String(payment.amount) : "",
         currency: payment.currency ?? "",
         dueDate: payment.dueDate ? String(payment.dueDate).slice(0, 10) : "",
@@ -69,7 +67,6 @@ export default function CreatePaymentModal({
     } else {
       setForm({
         customerId: "",
-        direction: "RECEIVABLE",
         amount: "",
         currency: "",
         dueDate: "",
@@ -110,7 +107,6 @@ export default function CreatePaymentModal({
           customerId: form.customerId ? Number(form.customerId) : null,
         }
       : {
-          direction: form.direction,
           amount: amountNum,
           currency: form.currency?.trim() || null,
           dueDate: new Date(form.dueDate).toISOString(),
@@ -192,23 +188,6 @@ export default function CreatePaymentModal({
               ) : null}
             </div>
 
-          {!isEdit ? (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">
-                Direction
-              </label>
-              <select
-                value={form.direction}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, direction: e.target.value }))
-                }
-                className="select-field"
-              >
-                <option value="RECEIVABLE">Receivable (money coming in)</option>
-                <option value="PAYABLE">Payable (money going out)</option>
-              </select>
-            </div>
-          ) : null}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

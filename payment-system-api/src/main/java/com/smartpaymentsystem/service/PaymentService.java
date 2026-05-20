@@ -38,7 +38,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment createPayment(Long businessId, PaymentDirection direction, BigDecimal amount,
+    public Payment createPayment(Long businessId, BigDecimal amount,
                                  String currency, String description, Instant dueDate,
                                  Long customerId) {
         businessAccessService.assertCanAccessBusiness(businessId);
@@ -52,7 +52,6 @@ public class PaymentService {
 
         Payment payment = new Payment();
         payment.setBusiness(business);
-        payment.setDirection(direction);
         payment.setStatus(dueDate != null && dueDate.isBefore(Instant.now())
                 ? PaymentStatus.OVERDUE
                 : PaymentStatus.PENDING);
