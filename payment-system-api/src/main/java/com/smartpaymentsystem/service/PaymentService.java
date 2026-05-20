@@ -78,6 +78,10 @@ public class PaymentService {
                 .findByIdAndBusiness_Id(paymentId, businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
+        if (payment.getStatus() == PaymentStatus.PAID || payment.getStatus() == PaymentStatus.CANCELED) {
+            throw new ConflictException("Cannot modify a payment with status " + payment.getStatus());
+        }
+
         if (request.getAmount() != null) {
             payment.setAmount(request.getAmount());
         }
