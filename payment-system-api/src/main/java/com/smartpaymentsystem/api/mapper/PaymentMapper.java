@@ -14,7 +14,6 @@ public class PaymentMapper {
             response.setCustomerId(payment.getCustomer().getId());
             response.setCustomerName(payment.getCustomer().getName());
         }
-        response.setDirection(payment.getDirection());
         response.setStatus(payment.getStatus());
         response.setAmount(payment.getAmount());
         response.setCurrency(payment.getCurrency());
