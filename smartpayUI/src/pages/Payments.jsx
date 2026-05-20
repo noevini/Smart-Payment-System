@@ -126,16 +126,18 @@ export default function Payments() {
                   </td>
                   <td className="table-td">
                     <div className="flex flex-wrap gap-2">
-                      {/* Edit button */}
-                      <button
-                        onClick={() => {
-                          setEditingPayment(p);
-                          setOpen(true);
-                        }}
-                        className="btn-secondary"
-                      >
-                        Edit
-                      </button>
+                      {/* Edit button — hidden for immutable statuses */}
+                      {p.status !== "PAID" && p.status !== "CANCELED" && (
+                        <button
+                          onClick={() => {
+                            setEditingPayment(p);
+                            setOpen(true);
+                          }}
+                          className="btn-secondary"
+                        >
+                          Edit
+                        </button>
+                      )}
 
                       {/* Mark as paid / cancel — only for PENDING or OVERDUE */}
                       {(p.status === "PENDING" || p.status === "OVERDUE") && (
