@@ -9,7 +9,7 @@ function getBasePath() {
 
 export async function listPayments() {
   const base = getBasePath();
-  if (!base) return []; // ainda não selecionou business
+  if (!base) return [];
   const res = await api.get(base);
   return res.data;
 }
