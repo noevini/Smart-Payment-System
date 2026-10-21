@@ -7,8 +7,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -18,7 +18,7 @@ import java.util.Date;
 public class JwtTokenService {
     private final JwtProperties jwtProperties;
 
-    private Key signingKey() {
+    private SecretKey signingKey() {
         return Keys.hmacShaKeyFor(
                 jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
         );
@@ -28,9 +28,9 @@ public class JwtTokenService {
         Instant now = Instant.now();
 
         JwtBuilder builder = Jwts.builder()
-                .setSubject(user.getId().toString())
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)))
+                .subject(user.getId().toString())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES)))
                 .claim("role", user.getRole().name())
                 .claim("name", user.getName())
                 .signWith(signingKey());
@@ -43,11 +43,11 @@ public class JwtTokenService {
     }
 
     private Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(signingKey())
+        return Jwts.parser()
+                .verifyWith(signingKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public Long extractUserId(String token) {

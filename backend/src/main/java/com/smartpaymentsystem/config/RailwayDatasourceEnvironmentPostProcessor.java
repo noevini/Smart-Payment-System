@@ -197,7 +197,7 @@ public class RailwayDatasourceEnvironmentPostProcessor implements EnvironmentPos
     private static boolean hasOpenAiApiKey(ConfigurableEnvironment environment) {
         return StringUtils.hasText(environment.getProperty("OPENAI_API_KEY"))
                 || StringUtils.hasText(environment.getProperty("spring.ai.openai.api-key"))
-                || StringUtils.hasText(environment.getProperty("spring.ai.openai-sdk.api-key"));
+                || StringUtils.hasText(environment.getProperty("spring.ai.openai.api-key"));
     }
 
     private static boolean containsSslMode(String query) {
