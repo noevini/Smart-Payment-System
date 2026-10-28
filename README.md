@@ -14,8 +14,8 @@ businesses under a single owner with strict data isolation between tenants.
 ## Tech Stack
 
 **Backend:**
-- Java 17
-- Spring Boot 3
+- Java 25
+- Spring Boot 4.1
 - Spring Security (JWT Authentication)
 - Spring Data JPA / Hibernate
 - PostgreSQL
@@ -27,9 +27,6 @@ businesses under a single owner with strict data isolation between tenants.
 - React
 - Tailwind CSS
 - Recharts
-
-**Deployment:**
-- Railway (Backend + Frontend + Database)
 
 ## Features
 
@@ -45,19 +42,10 @@ businesses under a single owner with strict data isolation between tenants.
 - Financial reports
 - Responsive React frontend with charts and dashboards
 
-## Live Demo
-
-Frontend: https://fearless-creation-production-1a99.up.railway.app
-
-Backend API: https://smart-payment-system-production.up.railway.app
-
-API Documentation (Swagger): 
-https://smart-payment-system-production.up.railway.app/swagger-ui.html
-
 ## Project Structure
 
     Smart-Payment-System/
-    ├── payment-system-api/          # Spring Boot backend
+    ├── backend/                     # Spring Boot backend
     │   ├── src/main/java/
     │   │   ├── api/                 # Controllers and DTOs
     │   │   ├── config/              # Security and JWT config
@@ -67,9 +55,9 @@ https://smart-payment-system-production.up.railway.app/swagger-ui.html
     │   │   └── service/             # Business logic
     │   ├── src/main/resources/
     │   │   └── db/migration/        # Flyway scripts
-    │   ├── src/test/                # JUnit tests (92 tests)
+    │   ├── src/test/                # JUnit tests (91 tests)
     │   └── pom.xml
-    └── smartpayUI/                  # React frontend
+    └── frontend/                    # React frontend
         ├── src/
         │   ├── api/                 # API client functions
         │   ├── components/          # UI components
@@ -82,8 +70,8 @@ https://smart-payment-system-production.up.railway.app/swagger-ui.html
 
 ### Prerequisites
 
-- Java 17+
-- Node.js 18+
+- Java 25+
+- Node.js 20.19+ (22 recommended, see `frontend/.nvmrc`)
 - PostgreSQL 14+
 - Maven
 
@@ -92,17 +80,30 @@ https://smart-payment-system-production.up.railway.app/swagger-ui.html
 1. Clone the repository:
 ```bash
 git clone https://github.com/noevini/Smart-Payment-System.git
-cd Smart-Payment-System/payment-system-api
+cd Smart-Payment-System/backend
 ```
 
-2. Configure environment variables:
-DATABASE_URL=jdbc:postgresql://localhost:5432/smartpay
-DATABASE_USERNAME=your_username
-DATABASE_PASSWORD=your_password
-JWT_SECRET=your_secret_key
-JWT_EXPIRATION_MINUTES=60
-SPRING_AI_OPENAI_API_KEY=your_openai_key
-CORS_ALLOWED_ORIGINS=http://localhost:5173
+2. Configure the application:
+```bash
+cp .env.example .env   # then edit the values
+```
+Defaults live in `src/main/resources/application.properties`. `backend/.env` is git-ignored and
+loaded as an optional config import, so it must use the canonical Spring property names
+(`spring.datasource.url=...`), as in `.env.example`. Real environment variables in the
+`SPRING_DATASOURCE_URL` format also work (e.g. for Docker and CI). Properties defined in
+`application.properties`:
+
+| Property (`.env`) | Environment variable | Default |
+|----------|--------------|---------|
+| `spring.datasource.url` | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/payment_tracker` |
+| `spring.datasource.username` | `SPRING_DATASOURCE_USERNAME` | `postgres` |
+| `spring.datasource.password` | `SPRING_DATASOURCE_PASSWORD` | empty |
+| `security.jwt.secret` | `SECURITY_JWT_SECRET` | local dev placeholder (change it) |
+| `security.jwt.expiration-minutes` | `SECURITY_JWT_EXPIRATION_MINUTES` | `60` |
+| `app.cors.allowed-origins` | `APP_CORS_ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:5174` |
+| `app.insights.ai-enabled` | `APP_INSIGHTS_AI_ENABLED` | `false` |
+| `spring.ai.openai.api-key` | `SPRING_AI_OPENAI_API_KEY` | empty |
+| `spring.ai.model.chat` | `SPRING_AI_MODEL_CHAT` | `none` |
 
 3. Run the application:
 ```bash
@@ -110,13 +111,13 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 4. Access Swagger UI:
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger
 
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
 ```bash
-cd Smart-Payment-System/smartpayUI
+cd Smart-Payment-System/frontend
 ```
 
 2. Install dependencies:
@@ -125,7 +126,7 @@ npm install
 ```
 
 3. Configure environment variables:
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 
 4. Run the development server:
 ```bash
@@ -134,11 +135,6 @@ npm run dev
 
 5. Access the application:
 http://localhost:5173
-
-## Default Credentials (Demo)
-
-To test the live demo, register a new OWNER account at:
-https://fearless-creation-production-1a99.up.railway.app/register
 
 ## API Endpoints
 
