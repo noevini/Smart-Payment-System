@@ -1,3 +1,0 @@
-# Node 18 is too old for Vite 7; Railway/Nixpacks picks this up from the service root.
-[variables]
-NIXPACKS_NODE_VERSION = "22"
