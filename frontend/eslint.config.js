@@ -24,6 +24,8 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Data is loaded on mount via effects throughout the app; this pattern is intentional.
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ])
